@@ -7,16 +7,27 @@ import frappe
 from lodgeick.config.oauth_tiers import OAUTH_TIER_CONFIG, get_available_tiers, is_tier_allowed_for_api
 
 
+def get_user_subscription_tier():
+	"""Get current user's subscription tier"""
+	try:
+		from lodgeick.lodgeick.doctype.subscription.subscription import get_user_subscription
+		subscription = get_user_subscription()
+		return subscription.tier if subscription else "Free"
+	except:
+		# If subscription system not yet installed, default to Free
+		return "Free"
+
+
 @frappe.whitelist()
 def get_tier_config(provider: str) -> dict:
 	"""
-	Get tier configuration for a provider
+	Get tier configuration for a provider with subscription-based gating
 
 	Args:
 		provider: Provider name (google, slack, xero, etc.)
 
 	Returns:
-		Tier configuration dict
+		Tier configuration dict with subscription gating applied
 	"""
 	config = get_available_tiers(provider)
 
@@ -41,6 +52,19 @@ def get_tier_config(provider: str) -> dict:
 				}
 			}
 		}
+
+	# Apply subscription gating
+	user_tier = get_user_subscription_tier()
+
+	# Free tier users: disable AI tier
+	if user_tier == "Free" and "ai" in config.get("tiers", {}):
+		config["tiers"]["ai"]["enabled"] = False
+		config["tiers"]["ai"]["upgrade_required"] = True
+		config["tiers"]["ai"]["upgrade_message"] = "Upgrade to Pro to enable AI-powered setup"
+		config["tiers"]["ai"]["upgrade_tier"] = "Pro"
+
+	# Add user's current tier to response
+	config["user_tier"] = user_tier
 
 	return config
 

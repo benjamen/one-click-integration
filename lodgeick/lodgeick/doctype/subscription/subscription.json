@@ -1,0 +1,185 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:user",
+ "creation": "2025-10-12 09:10:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "user",
+  "tier",
+  "status",
+  "column_break_4",
+  "start_date",
+  "end_date",
+  "section_break_7",
+  "max_integrations",
+  "max_workflow_executions",
+  "ai_setup_enabled",
+  "premium_providers_enabled",
+  "column_break_12",
+  "integrations_used",
+  "workflow_executions_used",
+  "section_break_15",
+  "stripe_customer_id",
+  "stripe_subscription_id",
+  "last_payment_date",
+  "next_payment_date"
+ ],
+ "fields": [
+  {
+   "fieldname": "user",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "User",
+   "options": "User",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "tier",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Tier",
+   "options": "Free\nPro\nEnterprise",
+   "reqd": 1,
+   "default": "Free"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "in_standard_filter": 1,
+   "label": "Status",
+   "options": "Active\nExpired\nCancelled\nTrial",
+   "reqd": 1,
+   "default": "Active"
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "start_date",
+   "fieldtype": "Date",
+   "label": "Start Date"
+  },
+  {
+   "fieldname": "end_date",
+   "fieldtype": "Date",
+   "label": "End Date"
+  },
+  {
+   "fieldname": "section_break_7",
+   "fieldtype": "Section Break",
+   "label": "Features & Limits"
+  },
+  {
+   "fieldname": "max_integrations",
+   "fieldtype": "Int",
+   "label": "Max Integrations",
+   "description": "Maximum number of active integrations allowed",
+   "default": "3"
+  },
+  {
+   "fieldname": "max_workflow_executions",
+   "fieldtype": "Int",
+   "label": "Max Workflow Executions (per month)",
+   "description": "Maximum workflow executions per month",
+   "default": "1000"
+  },
+  {
+   "fieldname": "ai_setup_enabled",
+   "fieldtype": "Check",
+   "label": "AI Setup Enabled",
+   "description": "Allow AI-powered OAuth setup",
+   "default": "0"
+  },
+  {
+   "fieldname": "premium_providers_enabled",
+   "fieldtype": "Check",
+   "label": "Premium Providers Enabled",
+   "description": "Access to HubSpot, Salesforce, etc.",
+   "default": "0"
+  },
+  {
+   "fieldname": "column_break_12",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "integrations_used",
+   "fieldtype": "Int",
+   "label": "Integrations Used",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "workflow_executions_used",
+   "fieldtype": "Int",
+   "label": "Workflow Executions Used (this month)",
+   "read_only": 1,
+   "default": "0"
+  },
+  {
+   "fieldname": "section_break_15",
+   "fieldtype": "Section Break",
+   "label": "Payment Information"
+  },
+  {
+   "fieldname": "stripe_customer_id",
+   "fieldtype": "Data",
+   "label": "Stripe Customer ID"
+  },
+  {
+   "fieldname": "stripe_subscription_id",
+   "fieldtype": "Data",
+   "label": "Stripe Subscription ID"
+  },
+  {
+   "fieldname": "last_payment_date",
+   "fieldtype": "Date",
+   "label": "Last Payment Date"
+  },
+  {
+   "fieldname": "next_payment_date",
+   "fieldtype": "Date",
+   "label": "Next Payment Date"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-10-12 09:10:00.000000",
+ "modified_by": "Administrator",
+ "module": "Lodgeick",
+ "name": "Subscription",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "All",
+   "if_owner": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

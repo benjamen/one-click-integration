@@ -108,14 +108,25 @@
                 </div>
 
                 <!-- AI-Powered Setup Option -->
-                <div v-if="tierConfig?.tiers?.ai?.enabled" class="col-md-4">
+                <div v-if="tierConfig?.tiers?.ai" class="col-md-4">
                   <div
                     class="card h-100 setup-option"
-                    :class="{ 'border-primary selected': setupMethod === 'ai' }"
-                    @click="setupMethod = 'ai'"
-                    style="cursor: pointer;"
+                    :class="{
+                      'border-primary selected': setupMethod === 'ai',
+                      'locked-tier': tierConfig.tiers.ai.upgrade_required
+                    }"
+                    @click="tierConfig.tiers.ai.enabled ? setupMethod = 'ai' : null"
+                    :style="{ cursor: tierConfig.tiers.ai.enabled ? 'pointer' : 'not-allowed', opacity: tierConfig.tiers.ai.enabled ? 1 : 0.7 }"
                   >
-                    <div class="card-body text-center p-4">
+                    <div class="card-body text-center p-4 position-relative">
+                      <!-- Upgrade Badge (if locked) -->
+                      <div v-if="tierConfig.tiers.ai.upgrade_required" class="position-absolute top-0 end-0 p-2">
+                        <span class="badge bg-warning">
+                          <i class="fas fa-lock me-1"></i>
+                          {{ tierConfig.tiers.ai.upgrade_tier }} Only
+                        </span>
+                      </div>
+
                       <div class="mb-3">
                         <i class="fas fa-robot fa-3x text-primary"></i>
                       </div>
@@ -126,10 +137,17 @@
                         {{ tierConfig.tiers.ai.description }}
                       </p>
                       <div class="mt-3">
-                        <span class="badge bg-success me-1">Recommended</span>
+                        <span v-if="tierConfig.tiers.ai.enabled" class="badge bg-success me-1">Recommended</span>
                         <span class="badge bg-primary">{{ tierConfig.tiers.ai.setup_time }}</span>
                       </div>
                       <hr class="my-3">
+
+                      <!-- Upgrade Message (if locked) -->
+                      <div v-if="tierConfig.tiers.ai.upgrade_required" class="alert alert-warning small mb-2">
+                        <i class="fas fa-star me-1"></i>
+                        {{ tierConfig.tiers.ai.upgrade_message }}
+                      </div>
+
                       <div class="text-start">
                         <div class="small text-success mb-2">
                           <i class="fas fa-check-circle me-1"></i> <strong>Pros:</strong>
@@ -137,6 +155,14 @@
                         <ul class="small text-muted mb-2" style="font-size: 0.85rem;">
                           <li v-for="adv in tierConfig.tiers.ai.advantages.slice(0,3)" :key="adv">{{ adv }}</li>
                         </ul>
+                      </div>
+
+                      <!-- Upgrade Button (if locked) -->
+                      <div v-if="tierConfig.tiers.ai.upgrade_required" class="mt-3">
+                        <button class="btn btn-warning btn-sm w-100" @click.stop="showUpgradeModal">
+                          <i class="fas fa-arrow-up me-1"></i>
+                          Upgrade to {{ tierConfig.tiers.ai.upgrade_tier }}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -689,6 +715,20 @@ function closeWizard() {
   showSecret.value = false
   emit('close')
 }
+
+function showUpgradeModal() {
+  const tier = tierConfig.value?.tiers?.ai?.upgrade_tier || 'Pro'
+  const message = `Upgrade to ${tier} to unlock AI-powered OAuth setup.\n\n` +
+                  `With ${tier}, you get:\n` +
+                  `• Unlimited API quota\n` +
+                  `• AI-powered setup (2 minutes)\n` +
+                  `• Access to all APIs\n` +
+                  `• Priority support\n\n` +
+                  `Contact support to upgrade your account.`
+
+  alert(message)
+  // TODO: Replace with proper upgrade modal/flow
+}
 </script>
 
 <style scoped>
@@ -784,5 +824,15 @@ function closeWizard() {
 .setup-option.selected {
   border-color: #7928CA !important;
   box-shadow: 0 4px 20px rgba(121, 40, 202, 0.2);
+}
+
+.setup-option.locked-tier {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(255, 255, 255, 1) 100%);
+  border: 2px dashed #ffc107 !important;
+}
+
+.setup-option.locked-tier:hover {
+  transform: none;
+  box-shadow: 0 4px 20px rgba(255, 193, 7, 0.2);
 }
 </style>
