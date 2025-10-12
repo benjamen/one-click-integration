@@ -59,8 +59,17 @@
         </div>
       </div>
 
+      <!-- Onboarding Checklist (only show if not completed or dismissed) -->
+      <div v-if="showOnboardingChecklist" class="mb-8 onboarding-checklist">
+        <OnboardingChecklist
+          :items="checklistItems"
+          @action="handleChecklistAction"
+          @dismiss="dismissChecklist"
+        />
+      </div>
+
       <!-- Stats Grid - Now clickable -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" data-tutorial="stats">
         <router-link
           to="/account/integrations"
           class="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-all cursor-pointer no-underline"
@@ -115,12 +124,20 @@
 
       <!-- Quick Actions -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-900">Quick Actions</h2>
+          <HelpTooltip
+            title="Quick Actions"
+            content="These shortcuts give you quick access to the most common tasks. Click any action to get started."
+            width="lg"
+          />
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-tutorial="quick-actions">
           <!-- Connect Apps -->
           <router-link
             to="/connect"
             class="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left group no-underline"
+            data-tutorial="connect-app"
           >
             <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
               <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,12 +265,64 @@
           </button>
         </div>
         <div class="space-y-4">
-          <div v-if="connectedAppsCount === 0" class="text-center py-8 text-gray-500">
-            <svg class="w-16 h-16 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-            </svg>
-            <p class="text-sm">No activity yet</p>
-            <p class="text-xs mt-1">Connect an app to get started</p>
+          <div v-if="connectedAppsCount === 0" class="text-center py-12">
+            <!-- Enhanced Empty State with Illustration -->
+            <div class="mb-6">
+              <div class="w-24 h-24 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+                <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-gray-900 mb-2">
+              No activity yet
+            </h3>
+            <p class="text-gray-600 mb-6 max-w-md mx-auto">
+              Your activity feed will show integration events, data syncs, and important updates once you connect your first app.
+            </p>
+
+            <!-- Quick Start Buttons -->
+            <div class="flex justify-center gap-3">
+              <router-link
+                to="/connect"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:scale-105 transition-all no-underline"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Connect Your First App
+              </router-link>
+
+              <a
+                href="https://docs.lodgeick.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:border-gray-400 hover:bg-gray-50 transition-all no-underline"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                View Documentation
+              </a>
+            </div>
+
+            <!-- Helpful Tips -->
+            <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200 max-w-2xl mx-auto">
+              <div class="flex items-start gap-3 text-left">
+                <div class="flex-shrink-0 mt-0.5">
+                  <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h4 class="font-semibold text-blue-900 mb-1">Pro Tip</h4>
+                  <p class="text-sm text-blue-800">
+                    Start with popular apps like Slack, Google Sheets, or Salesforce. Our Quick Start mode makes OAuth setup a breeze!
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div v-else class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
@@ -284,18 +353,199 @@
         </div>
       </div>
     </main>
+
+    <!-- Interactive Tutorial -->
+    <TutorialOverlay
+      v-model="showTutorial"
+      :steps="tutorialSteps"
+      storage-key="dashboard_tutorial_completed"
+      @complete="onTutorialComplete"
+      @skip="onTutorialSkip"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { session } from '@/data/session'
+import OnboardingChecklist from '@/components/OnboardingChecklist.vue'
+import HelpTooltip from '@/components/HelpTooltip.vue'
+import TutorialOverlay from '@/components/TutorialOverlay.vue'
 
+const router = useRouter()
 const onboardingStore = useOnboardingStore()
+
+// Tutorial state
+const showTutorial = ref(false)
+const tutorialSteps = ref([
+  {
+    target: '.onboarding-checklist, [data-tutorial="stats"]',
+    title: 'Welcome to your Dashboard!',
+    description: 'This is your command center. Here you can see your connected apps, active integrations, and get started with new connections.',
+    position: 'bottom',
+    actionHint: 'Follow these steps to get the most out of Lodgeick'
+  },
+  {
+    target: '[data-tutorial="stats"]',
+    title: 'Track Your Progress',
+    description: 'These stats show how many apps you have connected and how many integrations are running. Click on any stat card to view more details.',
+    position: 'bottom'
+  },
+  {
+    target: '[data-tutorial="quick-actions"]',
+    title: 'Quick Actions',
+    description: 'Use these shortcuts to quickly access common tasks like connecting apps, setting up OAuth, or configuring field mappings.',
+    position: 'top'
+  },
+  {
+    target: '[data-tutorial="connect-app"]',
+    title: 'Connect Your First App',
+    description: 'Start by connecting an app from our catalog. We support popular services like Slack, Google Sheets, Salesforce, and more!',
+    position: 'right',
+    actionHint: 'Click "Connect Apps" to browse our catalog'
+  }
+])
 
 const connectedAppsCount = computed(() => onboardingStore.connectedApps.length)
 const activeIntegrationsCount = computed(() => onboardingStore.selectedIntegrations.length)
+
+// Onboarding checklist state
+const checklistDismissed = ref(false)
+const checklistItems = ref([])
+
+// Load checklist dismissal state from localStorage
+onMounted(() => {
+  const dismissed = localStorage.getItem('onboarding_checklist_dismissed')
+  if (dismissed === 'true') {
+    checklistDismissed.value = true
+  }
+  updateChecklistItems()
+
+  // Show tutorial for first-time users
+  const tutorialCompleted = localStorage.getItem('dashboard_tutorial_completed')
+  const isFirstVisit = connectedAppsCount.value === 0
+  if (tutorialCompleted !== 'true' && isFirstVisit) {
+    // Delay tutorial start to let page render
+    setTimeout(() => {
+      showTutorial.value = true
+    }, 1000)
+  }
+})
+
+// Tutorial handlers
+function onTutorialComplete() {
+  // Tutorial completed, user is ready to explore
+  console.log('Tutorial completed')
+}
+
+function onTutorialSkip() {
+  // User skipped tutorial
+  console.log('Tutorial skipped')
+}
+
+// Update checklist items based on current state
+function updateChecklistItems() {
+  checklistItems.value = [
+    {
+      id: 'connect_app',
+      title: 'Connect your first app',
+      description: 'Choose an app from our catalog to get started with integrations',
+      completed: connectedAppsCount.value > 0,
+      completedAt: connectedAppsCount.value > 0 ? Date.now() : null,
+      actionLabel: 'Connect App',
+      actionRoute: '/connect',
+      estimatedTime: '2 min',
+      isActive: connectedAppsCount.value === 0,
+      isOptional: false
+    },
+    {
+      id: 'setup_oauth',
+      title: 'Set up OAuth credentials',
+      description: 'Configure OAuth for secure app connections',
+      completed: onboardingStore.connectedApps.length > 0 && hasOAuthSetup.value,
+      completedAt: hasOAuthSetup.value ? Date.now() : null,
+      actionLabel: 'Setup OAuth',
+      actionRoute: '/integrate',
+      estimatedTime: '5 min',
+      isActive: connectedAppsCount.value > 0 && !hasOAuthSetup.value,
+      isOptional: false
+    },
+    {
+      id: 'create_integration',
+      title: 'Create your first integration',
+      description: 'Connect two apps to start automating your workflows',
+      completed: activeIntegrationsCount.value > 0,
+      completedAt: activeIntegrationsCount.value > 0 ? Date.now() : null,
+      actionLabel: 'Create Integration',
+      actionRoute: '/configure',
+      estimatedTime: '3 min',
+      isActive: connectedAppsCount.value > 0 && activeIntegrationsCount.value === 0,
+      isOptional: false
+    },
+    {
+      id: 'configure_fields',
+      title: 'Map your data fields',
+      description: 'Customize how data flows between your apps',
+      completed: hasFieldMappings.value,
+      completedAt: hasFieldMappings.value ? Date.now() : null,
+      actionLabel: 'Configure Fields',
+      actionRoute: '/configure',
+      estimatedTime: '3 min',
+      isActive: activeIntegrationsCount.value > 0 && !hasFieldMappings.value,
+      isOptional: true
+    },
+    {
+      id: 'upgrade_plan',
+      title: 'Explore Pro features',
+      description: 'Upgrade to Pro for AI-powered OAuth and more integrations',
+      completed: hasPaidPlan.value,
+      completedAt: hasPaidPlan.value ? Date.now() : null,
+      actionLabel: 'View Plans',
+      actionRoute: '/pricing',
+      estimatedTime: '1 min',
+      isActive: false,
+      isOptional: true
+    }
+  ]
+}
+
+// Computed properties for checklist logic
+const hasOAuthSetup = computed(() => {
+  // TODO: Check if user has completed OAuth setup
+  return connectedAppsCount.value > 0
+})
+
+const hasFieldMappings = computed(() => {
+  return Object.keys(onboardingStore.fieldMappings).length > 0
+})
+
+const hasPaidPlan = computed(() => {
+  // TODO: Check user's subscription tier from API
+  return false
+})
+
+const showOnboardingChecklist = computed(() => {
+  return !checklistDismissed.value && !allChecklistItemsCompleted.value
+})
+
+const allChecklistItemsCompleted = computed(() => {
+  const requiredItems = checklistItems.value.filter(item => !item.isOptional)
+  return requiredItems.every(item => item.completed)
+})
+
+// Checklist actions
+function handleChecklistAction(itemId, route) {
+  if (route) {
+    router.push(route)
+  }
+}
+
+function dismissChecklist() {
+  checklistDismissed.value = true
+  localStorage.setItem('onboarding_checklist_dismissed', 'true')
+}
 
 // Real data - no fake random numbers
 const dataSyncedCount = computed(() => {

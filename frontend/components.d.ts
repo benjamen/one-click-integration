@@ -16,12 +16,14 @@ declare module 'vue' {
     FeatureGrid: typeof import('./src/components/FeatureGrid.vue')['default']
     GoogleAISetupWizard: typeof import('./src/components/GoogleAISetupWizard.vue')['default']
     HelpModal: typeof import('./src/components/HelpModal.vue')['default']
+    HelpTooltip: typeof import('./src/components/HelpTooltip.vue')['default']
     HeroSection: typeof import('./src/components/HeroSection.vue')['default']
     IntegrationCard: typeof import('./src/components/onboarding/IntegrationCard.vue')['default']
     IntegrationItem: typeof import('./src/components/IntegrationItem.vue')['default']
     IntegrationsGrid: typeof import('./src/components/IntegrationsGrid.vue')['default']
     OAuthSetupWizard: typeof import('./src/components/OAuthSetupWizard.vue')['default']
     OAuthSetupWizardEnhanced: typeof import('./src/components/OAuthSetupWizardEnhanced.vue')['default']
+    OnboardingChecklist: typeof import('./src/components/OnboardingChecklist.vue')['default']
     PrimaryButton: typeof import('./src/components/onboarding/PrimaryButton.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
@@ -29,5 +31,6 @@ declare module 'vue' {
     StepProgressBar: typeof import('./src/components/onboarding/StepProgressBar.vue')['default']
     StepsSection: typeof import('./src/components/StepsSection.vue')['default']
     TierDetailsModal: typeof import('./src/components/TierDetailsModal.vue')['default']
+    TutorialOverlay: typeof import('./src/components/TutorialOverlay.vue')['default']
   }
 }
