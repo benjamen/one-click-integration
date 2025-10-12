@@ -11,20 +11,22 @@
         <!-- Header -->
         <div class="modal-header bg-gradient-primary">
           <div class="w-100">
-            <!-- Breadcrumbs -->
+            <!-- Breadcrumbs (Tailwind) -->
             <nav aria-label="breadcrumb" class="mb-2">
-              <ol class="breadcrumb bg-transparent mb-0 pb-0">
-                <li class="breadcrumb-item">
-                  <a href="#" class="text-white text-decoration-none opacity-75 hover-opacity-100" @click.prevent="closeWizard">
-                    <i class="fas fa-home me-1"></i>
-                    Home
+              <ol class="flex items-center gap-2 text-sm">
+                <li class="flex items-center">
+                  <a href="#" class="text-white/75 hover:text-white transition-colors flex items-center gap-1" @click.prevent="closeWizard">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
                   </a>
                 </li>
-                <li class="breadcrumb-item">
-                  <span class="text-white opacity-75">Integrations</span>
+                <li class="text-white/50">/</li>
+                <li class="flex items-center">
+                  <span class="text-white/75">Integrations</span>
                 </li>
-                <li class="breadcrumb-item active text-white" aria-current="page">
-                  {{ providerName }} Setup
+                <li class="text-white/50">/</li>
+                <li class="flex items-center" aria-current="page">
+                  <span class="text-white font-medium">{{ providerName }} Setup</span>
                 </li>
               </ol>
             </nav>
@@ -924,12 +926,5 @@ function showUpgradeModal() {
   box-shadow: 0 4px 20px rgba(255, 193, 7, 0.2);
 }
 
-/* Breadcrumb hover effect */
-.hover-opacity-100:hover {
-  opacity: 1 !important;
-}
-
-.breadcrumb-item + .breadcrumb-item::before {
-  color: rgba(255, 255, 255, 0.5);
-}
+/* Breadcrumb styles handled by Tailwind */
 </style>

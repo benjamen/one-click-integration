@@ -79,6 +79,7 @@ import {
 } from "frappe-ui"
 
 import "./index.css"
+import "./styles/design-tokens.css"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 
