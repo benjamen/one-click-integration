@@ -17,7 +17,7 @@
             <a href="#features" class="text-gray-700 hover:text-blue-600 font-medium transition-colors no-underline">Features</a>
             <a href="#integrations" class="text-gray-700 hover:text-blue-600 font-medium transition-colors no-underline">Integrations</a>
             <a href="#how-it-works" class="text-gray-700 hover:text-blue-600 font-medium transition-colors no-underline">How It Works</a>
-            <a href="/desk" class="text-gray-700 hover:text-blue-600 font-medium transition-colors no-underline">Desk</a>
+            <router-link to="/pricing" class="text-gray-700 hover:text-blue-600 font-medium transition-colors no-underline">Pricing</router-link>
 
             <div v-if="session.isLoggedIn" class="flex items-center gap-4">
               <router-link
@@ -54,6 +54,8 @@
           <button
             @click="mobileMenuOpen = !mobileMenuOpen"
             class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            :aria-label="mobileMenuOpen ? 'Close menu' : 'Open menu'"
+            aria-expanded="mobileMenuOpen"
           >
             <svg v-if="!mobileMenuOpen" class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -79,7 +81,7 @@
             <a href="#features" @click="mobileMenuOpen = false" class="block text-gray-700 hover:text-blue-600 font-medium py-2 no-underline">Features</a>
             <a href="#integrations" @click="mobileMenuOpen = false" class="block text-gray-700 hover:text-blue-600 font-medium py-2 no-underline">Integrations</a>
             <a href="#how-it-works" @click="mobileMenuOpen = false" class="block text-gray-700 hover:text-blue-600 font-medium py-2 no-underline">How It Works</a>
-            <a href="/desk" class="block text-gray-700 hover:text-blue-600 font-medium py-2 no-underline">Desk</a>
+            <router-link to="/pricing" @click="mobileMenuOpen = false" class="block text-gray-700 hover:text-blue-600 font-medium py-2 no-underline">Pricing</router-link>
 
             <div v-if="session.isLoggedIn" class="space-y-3 pt-3 border-t border-gray-200">
               <router-link

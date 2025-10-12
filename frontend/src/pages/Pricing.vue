@@ -40,11 +40,11 @@
       </div>
 
       <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        <!-- Starter Plan -->
+        <!-- Free Plan -->
         <div class="bg-white rounded-2xl shadow-lg p-8 border-2 border-gray-200 hover:border-blue-500 transition-all">
-          <h3 class="text-2xl font-bold text-gray-900 mb-2">Starter</h3>
+          <h3 class="text-2xl font-bold text-gray-900 mb-2">Free</h3>
           <div class="mb-6">
-            <span class="text-4xl font-bold text-gray-900">$29</span>
+            <span class="text-4xl font-bold text-gray-900">$0</span>
             <span class="text-gray-600">/month</span>
           </div>
           <ul class="space-y-3 mb-8">
@@ -52,39 +52,45 @@
               <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
-              <span class="text-gray-600">Up to 5 integrations</span>
+              <span class="text-gray-600">Up to 3 integrations</span>
             </li>
             <li class="flex items-start">
               <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
-              <span class="text-gray-600">1,000 tasks/month</span>
+              <span class="text-gray-600">1,000 workflow executions/month</span>
             </li>
             <li class="flex items-start">
               <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
-              <span class="text-gray-600">Email support</span>
+              <span class="text-gray-600">Quick Start + Manual OAuth</span>
+            </li>
+            <li class="flex items-start">
+              <svg class="w-5 h-5 text-green-500 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-gray-600">Community support</span>
             </li>
           </ul>
           <router-link
-            to="/auth"
+            to="/account/signup"
             class="block w-full text-center py-3 px-6 rounded-lg bg-gray-100 text-gray-900 font-semibold hover:bg-gray-200 transition-colors no-underline"
           >
             Get Started
           </router-link>
         </div>
 
-        <!-- Professional Plan (Featured) -->
+        <!-- Pro Plan (Featured) -->
         <div class="bg-blue-600 rounded-2xl shadow-xl p-8 border-2 border-blue-600 transform scale-105">
           <div class="text-center mb-2">
             <span class="inline-block px-3 py-1 bg-white bg-opacity-20 rounded-full text-white text-sm font-semibold">
               Most Popular
             </span>
           </div>
-          <h3 class="text-2xl font-bold text-white mb-2">Professional</h3>
+          <h3 class="text-2xl font-bold text-white mb-2">Pro</h3>
           <div class="mb-6">
-            <span class="text-4xl font-bold text-white">$99</span>
+            <span class="text-4xl font-bold text-white">$29</span>
             <span class="text-blue-100">/month</span>
           </div>
           <ul class="space-y-3 mb-8">
@@ -92,13 +98,25 @@
               <svg class="w-5 h-5 text-white mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
-              <span class="text-blue-50">Unlimited integrations</span>
+              <span class="text-blue-50">Up to 10 integrations</span>
             </li>
             <li class="flex items-start">
               <svg class="w-5 h-5 text-white mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
               </svg>
-              <span class="text-blue-50">10,000 tasks/month</span>
+              <span class="text-blue-50">10,000 workflow executions/month</span>
+            </li>
+            <li class="flex items-start">
+              <svg class="w-5 h-5 text-white mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-blue-50">AI-powered OAuth setup</span>
+            </li>
+            <li class="flex items-start">
+              <svg class="w-5 h-5 text-white mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+              <span class="text-blue-50">Premium integrations</span>
             </li>
             <li class="flex items-start">
               <svg class="w-5 h-5 text-white mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
@@ -106,15 +124,9 @@
               </svg>
               <span class="text-blue-50">Priority support</span>
             </li>
-            <li class="flex items-start">
-              <svg class="w-5 h-5 text-white mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-              </svg>
-              <span class="text-blue-50">Custom workflows</span>
-            </li>
           </ul>
           <router-link
-            to="/auth"
+            to="/account/signup"
             class="block w-full text-center py-3 px-6 rounded-lg bg-white text-blue-600 font-semibold hover:bg-gray-100 transition-colors no-underline"
           >
             Get Started
@@ -163,7 +175,8 @@
       </div>
 
       <div class="text-center mt-16">
-        <p class="text-gray-600 mb-4">All plans include a 14-day free trial. No credit card required.</p>
+        <p class="text-gray-700 mb-4">Start with the Free plan. Upgrade anytime as your needs grow.</p>
+        <p class="text-gray-600 text-sm">All paid plans include a 14-day money-back guarantee.</p>
       </div>
     </div>
 

@@ -10,10 +10,29 @@
       <div class="modal-content">
         <!-- Header -->
         <div class="modal-header bg-gradient-primary">
-          <h5 class="modal-title text-white font-weight-bold">
-            <i class="fas fa-magic me-2"></i>
-            OAuth Setup Wizard - {{ providerName }}
-          </h5>
+          <div class="w-100">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb" class="mb-2">
+              <ol class="breadcrumb bg-transparent mb-0 pb-0">
+                <li class="breadcrumb-item">
+                  <a href="#" class="text-white text-decoration-none opacity-75 hover-opacity-100" @click.prevent="closeWizard">
+                    <i class="fas fa-home me-1"></i>
+                    Home
+                  </a>
+                </li>
+                <li class="breadcrumb-item">
+                  <span class="text-white opacity-75">Integrations</span>
+                </li>
+                <li class="breadcrumb-item active text-white" aria-current="page">
+                  {{ providerName }} Setup
+                </li>
+              </ol>
+            </nav>
+            <h5 class="modal-title text-white font-weight-bold mb-0">
+              <i class="fas fa-magic me-2"></i>
+              OAuth Setup Wizard
+            </h5>
+          </div>
           <button
             type="button"
             class="btn-close btn-close-white"
@@ -578,6 +597,9 @@ onMounted(async () => {
       provider: props.provider
     })
     tierConfig.value = config
+
+    // Load saved progress from localStorage
+    loadProgress()
   } catch (error) {
     errorMessage.value = `Failed to load setup options: ${error.message}`
     toast.error(`Failed to load setup options: ${error.message || 'Please try again'}`)
@@ -585,6 +607,53 @@ onMounted(async () => {
     loading.value = false
   }
 })
+
+// Save and load progress functions
+function saveProgress() {
+  const progress = {
+    provider: props.provider,
+    setupMethod: setupMethod.value,
+    currentStep: currentStep.value,
+    clientId: clientId.value,
+    clientSecret: clientSecret.value,
+    timestamp: Date.now()
+  }
+  localStorage.setItem(`oauth_progress_${props.provider}`, JSON.stringify(progress))
+}
+
+function loadProgress() {
+  const saved = localStorage.getItem(`oauth_progress_${props.provider}`)
+  if (saved) {
+    try {
+      const progress = JSON.parse(saved)
+      // Only load if saved less than 24 hours ago
+      const hoursSinceSave = (Date.now() - progress.timestamp) / (1000 * 60 * 60)
+      if (hoursSinceSave < 24) {
+        setupMethod.value = progress.setupMethod || 'default'
+        currentStep.value = progress.currentStep || 0
+        clientId.value = progress.clientId || ''
+        clientSecret.value = progress.clientSecret || ''
+        toast.info('Resumed your previous OAuth setup', { timeout: 4000 })
+      } else {
+        // Clear old progress
+        clearProgress()
+      }
+    } catch (e) {
+      console.error('Failed to load progress:', e)
+    }
+  }
+}
+
+function clearProgress() {
+  localStorage.removeItem(`oauth_progress_${props.provider}`)
+}
+
+// Watch for changes and auto-save
+watch([setupMethod, currentStep, clientId, clientSecret], () => {
+  if (currentStep.value > 0 && currentStep.value < 5) {
+    saveProgress()
+  }
+}, { deep: true })
 
 // Watch for prop changes
 watch(() => props.show, (newVal) => {
@@ -720,8 +789,13 @@ function copyToClipboard(text) {
 }
 
 function closeWizard() {
+  // Only clear progress if wizard was completed (step 5)
+  if (currentStep.value === 5) {
+    clearProgress()
+  }
+
   currentStep.value = 0
-  setupMethod.value = null
+  setupMethod.value = 'default'
   clientId.value = ''
   clientSecret.value = ''
   showSecret.value = false
@@ -848,5 +922,14 @@ function showUpgradeModal() {
 .setup-option.locked-tier:hover {
   transform: none;
   box-shadow: 0 4px 20px rgba(255, 193, 7, 0.2);
+}
+
+/* Breadcrumb hover effect */
+.hover-opacity-100:hover {
+  opacity: 1 !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  color: rgba(255, 255, 255, 0.5);
 }
 </style>
