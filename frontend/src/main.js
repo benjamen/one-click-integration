@@ -82,6 +82,10 @@ import "./index.css"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "bootstrap"
 
+// Toast notifications
+import Toast from "vue-toastification"
+import "vue-toastification/dist/index.css"
+
 const globalComponents = {
 	Button,
 	Card,
@@ -103,6 +107,25 @@ app.use(pinia)
 app.use(router)
 app.use(resourcesPlugin)
 app.use(pageMetaPlugin)
+
+// Configure toast notifications
+app.use(Toast, {
+	position: "top-right",
+	timeout: 5000,
+	closeOnClick: true,
+	pauseOnFocusLoss: true,
+	pauseOnHover: true,
+	draggable: true,
+	draggablePercent: 0.6,
+	showCloseButtonOnHover: false,
+	hideProgressBar: false,
+	closeButton: "button",
+	icon: true,
+	rtl: false,
+	transition: "Vue-Toastification__bounce",
+	maxToasts: 5,
+	newestOnTop: true
+})
 
 const socket = initSocket()
 app.config.globalProperties.$socket = socket

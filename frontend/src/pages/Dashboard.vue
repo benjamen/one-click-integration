@@ -297,14 +297,16 @@ const onboardingStore = useOnboardingStore()
 const connectedAppsCount = computed(() => onboardingStore.connectedApps.length)
 const activeIntegrationsCount = computed(() => onboardingStore.selectedIntegrations.length)
 
-// Simulated data - replace with real API calls
+// Real data - no fake random numbers
 const dataSyncedCount = computed(() => {
-  return connectedAppsCount.value > 0 ? Math.floor(Math.random() * 500) + 100 : 0
+  // TODO: Replace with real API call to get actual sync count
+  return 0
 })
 
 const lastSyncTime = computed(() => {
   if (connectedAppsCount.value === 0) return 'Never'
-  return '2 minutes ago'
+  // TODO: Replace with real last sync timestamp from API
+  return 'Never'
 })
 
 const userName = computed(() => {

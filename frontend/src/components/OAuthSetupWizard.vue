@@ -17,6 +17,7 @@
           <button
             type="button"
             class="btn-close btn-close-white"
+            aria-label="Close OAuth setup wizard"
             @click="closeWizard"
           ></button>
         </div>
@@ -394,6 +395,7 @@
                     >
                     <button
                       class="btn btn-outline-secondary"
+                      aria-label="Copy redirect URI to clipboard"
                       @click="copyToClipboard(redirectUri)"
                     >
                       <i class="fas fa-copy"></i>
@@ -452,6 +454,7 @@
                   >
                   <button
                     class="btn btn-outline-secondary"
+                    :aria-label="showSecret ? 'Hide client secret' : 'Show client secret'"
                     @click="showSecret = !showSecret"
                   >
                     <i :class="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -539,6 +542,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue"
 import { createResource, call } from "frappe-ui"
+import { useToast } from "@/composables/useToast"
 
 const props = defineProps({
   show: {
@@ -553,8 +557,10 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'success', 'launchAIWizard'])
 
+const toast = useToast()
+
 const currentStep = ref(0)
-const setupMethod = ref(null) // 'default', 'ai', or 'manual'
+const setupMethod = ref('default') // Default to 'default' (Quick Start) for better UX
 const clientId = ref('')
 const clientSecret = ref('')
 const showSecret = ref(false)
@@ -574,6 +580,7 @@ onMounted(async () => {
     tierConfig.value = config
   } catch (error) {
     errorMessage.value = `Failed to load setup options: ${error.message}`
+    toast.error(`Failed to load setup options: ${error.message || 'Please try again'}`)
   } finally {
     loading.value = false
   }
@@ -640,6 +647,7 @@ const saveCredentialsResource = createResource({
     saving.value = false
     if (data.ready_to_connect) {
       currentStep.value = 5
+      toast.success('OAuth credentials saved successfully! 🎉')
     }
     emit('success', {
       provider: props.provider,
@@ -649,7 +657,9 @@ const saveCredentialsResource = createResource({
   },
   onError(error) {
     saving.value = false
-    alert(`Failed to save credentials: ${error.message || error}`)
+    toast.error(`Failed to save credentials: ${error.message || error}`, {
+      timeout: 7000
+    })
   }
 })
 
@@ -687,7 +697,7 @@ function previousStep() {
 
 function saveCredentials() {
   if (!clientId.value || !clientSecret.value) {
-    alert('Please enter both Client ID and Client Secret')
+    toast.warning('Please enter both Client ID and Client Secret')
     return
   }
 
@@ -697,13 +707,15 @@ function saveCredentials() {
 
 function copyToClipboard(text) {
   navigator.clipboard.writeText(text).then(() => {
-    // Show toast or temporary message
+    toast.success('Copied to clipboard!')
     const button = event.target.closest('button')
     const icon = button.querySelector('i')
     icon.className = 'fas fa-check'
     setTimeout(() => {
       icon.className = 'fas fa-copy'
     }, 2000)
+  }).catch(() => {
+    toast.error('Failed to copy to clipboard')
   })
 }
 
@@ -718,16 +730,18 @@ function closeWizard() {
 
 function showUpgradeModal() {
   const tier = tierConfig.value?.tiers?.ai?.upgrade_tier || 'Pro'
-  const message = `Upgrade to ${tier} to unlock AI-powered OAuth setup.\n\n` +
-                  `With ${tier}, you get:\n` +
-                  `• Unlimited API quota\n` +
-                  `• AI-powered setup (2 minutes)\n` +
-                  `• Access to all APIs\n` +
-                  `• Priority support\n\n` +
-                  `Contact support to upgrade your account.`
 
-  alert(message)
-  // TODO: Replace with proper upgrade modal/flow
+  // Show upgrade info with toast for now - TODO: Create proper upgrade modal with Stripe
+  toast.info(
+    `Upgrade to ${tier} to unlock AI-powered OAuth setup! Includes: Unlimited API quota, AI-powered setup (2 min), Access to all APIs, Priority support.`,
+    {
+      timeout: 10000
+    }
+  )
+
+  // TODO: Replace with proper modal component with pricing breakdown and Stripe checkout
+  // For now, could redirect to pricing page
+  // router.push('/pricing')
 }
 </script>
 
