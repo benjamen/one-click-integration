@@ -452,47 +452,35 @@
               </h5>
               <p>Enter your OAuth credentials from Google Cloud Console:</p>
 
-              <div class="mb-3">
-                <label class="form-label font-weight-bold">
-                  Client ID
-                  <span class="text-danger">*</span>
-                </label>
-                <input
-                  v-model="clientId"
-                  type="text"
-                  class="form-control"
-                  placeholder="1234567890-abc123def456.apps.googleusercontent.com"
-                >
-                <small class="text-muted">
-                  Ends with .apps.googleusercontent.com
-                </small>
-              </div>
+              <BaseInput
+                v-model="clientId"
+                label="Client ID"
+                type="text"
+                placeholder="1234567890-abc123def456.apps.googleusercontent.com"
+                helper-text="Ends with .apps.googleusercontent.com"
+                required
+                class="mb-4"
+              />
 
-              <div class="mb-3">
-                <label class="form-label font-weight-bold">
-                  Client Secret
-                  <span class="text-danger">*</span>
-                </label>
-                <div class="input-group">
-                  <input
-                    v-model="clientSecret"
-                    :type="showSecret ? 'text' : 'password'"
-                    class="form-control"
-                    placeholder="GOCSPX-xxxxxxxxxxxxx"
-                  >
-                  <BaseButton
-                    variant="outline-secondary"
-                    size="md"
-                    :aria-label="showSecret ? 'Hide client secret' : 'Show client secret'"
+              <BaseInput
+                v-model="clientSecret"
+                label="Client Secret"
+                :type="showSecret ? 'text' : 'password'"
+                placeholder="GOCSPX-xxxxxxxxxxxxx"
+                helper-text="Usually starts with GOCSPX-"
+                required
+                class="mb-4"
+              >
+                <template #append>
+                  <button
                     @click="showSecret = !showSecret"
-                    :icon-left="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"
+                    class="text-gray-400 hover:text-gray-600"
+                    :aria-label="showSecret ? 'Hide client secret' : 'Show client secret'"
                   >
-                  </BaseButton>
-                </div>
-                <small class="text-muted">
-                  Usually starts with GOCSPX-
-                </small>
-              </div>
+                    <i :class="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                  </button>
+                </template>
+              </BaseInput>
 
               <div class="alert alert-success" v-if="clientId && clientSecret">
                 <i class="fas fa-check-circle me-2"></i>
@@ -565,6 +553,7 @@ import { ref, computed, watch, onMounted } from "vue"
 import { createResource, call } from "frappe-ui"
 import { useToast } from "@/composables/useToast"
 import BaseButton from "./BaseButton.vue"
+import BaseInput from "./BaseInput.vue"
 
 const props = defineProps({
   show: {

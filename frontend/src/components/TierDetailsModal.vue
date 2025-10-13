@@ -9,20 +9,20 @@
           <div v-if="tier">
             <!-- Description -->
             <div class="mb-4">
-              <h6 class="fw-bold">Description</h6>
-              <p class="text-muted">{{ tier.description }}</p>
+              <h6 class="font-bold text-gray-900">Description</h6>
+              <p class="text-gray-600">{{ tier.description }}</p>
             </div>
 
             <!-- Setup Time -->
             <div class="mb-4">
-              <h6 class="fw-bold">Setup Time</h6>
-              <p class="text-muted">{{ tier.setup_time }}</p>
+              <h6 class="font-bold text-gray-900">Setup Time</h6>
+              <p class="text-gray-600">{{ tier.setup_time }}</p>
             </div>
 
             <!-- Advantages -->
             <div class="mb-4">
-              <h6 class="fw-bold text-success">
-                <i class="fas fa-check-circle me-1"></i> Advantages
+              <h6 class="font-bold text-green-600">
+                <i class="fas fa-check-circle mr-1"></i> Advantages
               </h6>
               <ul class="mb-0">
                 <li v-for="adv in tier.advantages" :key="adv" class="mb-2">
@@ -33,8 +33,8 @@
 
             <!-- Limitations -->
             <div v-if="tier.limitations && tier.limitations.length > 0" class="mb-4">
-              <h6 class="fw-bold text-warning">
-                <i class="fas fa-exclamation-circle me-1"></i> Limitations
+              <h6 class="font-bold text-yellow-600">
+                <i class="fas fa-exclamation-circle mr-1"></i> Limitations
               </h6>
               <ul class="mb-0">
                 <li v-for="lim in tier.limitations" :key="lim" class="mb-2">
@@ -45,7 +45,7 @@
 
             <!-- Requirements -->
             <div v-if="tier.requires && tier.requires.length > 0" class="mb-4">
-              <h6 class="fw-bold">Requirements</h6>
+              <h6 class="font-bold text-gray-900">Requirements</h6>
               <ul class="mb-0">
                 <li v-for="req in tier.requires" :key="req">
                   {{ req }}
@@ -55,11 +55,11 @@
 
             <!-- Rate Limits (if applicable) -->
             <div v-if="tier.rate_limits" class="mb-4">
-              <h6 class="fw-bold">Rate Limits</h6>
+              <h6 class="font-bold text-gray-900">Rate Limits</h6>
               <div v-if="typeof tier.rate_limits === 'object' && !Array.isArray(tier.rate_limits)">
                 <div v-for="(limits, api) in tier.rate_limits" :key="api" class="mb-2">
-                  <div class="fw-bold small">{{ api }}</div>
-                  <ul class="small text-muted mb-0">
+                  <div class="font-bold text-sm">{{ api }}</div>
+                  <ul class="text-sm text-gray-600 mb-0">
                     <li v-if="limits.requests_per_minute">
                       {{ limits.requests_per_minute }} requests/minute
                     </li>
@@ -69,7 +69,7 @@
                   </ul>
                 </div>
               </div>
-              <p v-else class="text-muted small">
+              <p v-else class="text-gray-600 text-sm">
                 Rate limits apply - see tier description for details
               </p>
             </div>

@@ -34,19 +34,15 @@
               Our AI will figure out which APIs and permissions you need.
             </p>
 
-            <div class="mb-3">
-              <label class="form-label font-weight-bold">Your Integration Request</label>
-              <textarea
-                v-model="userIntent"
-                class="form-control"
-                rows="4"
-                placeholder="Example: I want to read and send emails from Gmail, and create spreadsheets in Google Sheets"
-                :disabled="parsing"
-              ></textarea>
-              <small class="text-muted">
-                Try: "Connect to Google Drive and Gmail" or "Access Google Calendar and Sheets"
-              </small>
-            </div>
+            <BaseTextarea
+              v-model="userIntent"
+              label="Your Integration Request"
+              rows="4"
+              placeholder="Example: I want to read and send emails from Gmail, and create spreadsheets in Google Sheets"
+              helper-text="Try: 'Connect to Google Drive and Gmail' or 'Access Google Calendar and Sheets'"
+              :disabled="parsing"
+              class="mb-4"
+            />
 
             <div v-if="parseError" class="alert alert-danger">
               <i class="fas fa-exclamation-circle me-2"></i>
@@ -217,15 +213,13 @@
                 <i class="fas fa-folder-plus me-2"></i>
                 Name Your New Project
               </h6>
-              <input
+              <BaseInput
                 v-model="projectName"
                 type="text"
-                class="form-control mb-3"
                 placeholder="e.g., My Lodgeick Integration"
-              >
-              <small class="text-muted d-block mb-3">
-                A unique project ID will be generated automatically
-              </small>
+                helper-text="A unique project ID will be generated automatically"
+                class="mb-3"
+              />
               <BaseButton
                 variant="success"
                 full-width
@@ -477,39 +471,33 @@
               Enter OAuth Credentials
             </h5>
 
-            <div class="mb-3">
-              <label class="form-label font-weight-bold">
-                Client ID
-                <span class="text-danger">*</span>
-              </label>
-              <input
-                v-model="oauthClientId"
-                type="text"
-                class="form-control"
-                placeholder="123456789-abc123def456.apps.googleusercontent.com"
-              >
-            </div>
+            <BaseInput
+              v-model="oauthClientId"
+              label="Client ID"
+              type="text"
+              placeholder="123456789-abc123def456.apps.googleusercontent.com"
+              required
+              class="mb-4"
+            />
 
-            <div class="mb-3">
-              <label class="form-label font-weight-bold">
-                Client Secret
-                <span class="text-danger">*</span>
-              </label>
-              <div class="input-group">
-                <input
-                  v-model="oauthClientSecret"
-                  :type="showSecret ? 'text' : 'password'"
-                  class="form-control"
-                  placeholder="GOCSPX-xxxxxxxxxxxxx"
-                >
-                <BaseButton
-                  variant="outline-secondary"
+            <BaseInput
+              v-model="oauthClientSecret"
+              label="Client Secret"
+              :type="showSecret ? 'text' : 'password'"
+              placeholder="GOCSPX-xxxxxxxxxxxxx"
+              required
+              class="mb-4"
+            >
+              <template #append>
+                <button
                   @click="showSecret = !showSecret"
-                  :icon-left="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"
+                  class="text-gray-400 hover:text-gray-600"
+                  :aria-label="showSecret ? 'Hide client secret' : 'Show client secret'"
                 >
-                </BaseButton>
-              </div>
-            </div>
+                  <i :class="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                </button>
+              </template>
+            </BaseInput>
 
             <BaseButton
               variant="success"
@@ -561,6 +549,8 @@
 import { ref, computed } from "vue"
 import { createResource } from "frappe-ui"
 import BaseButton from "./BaseButton.vue"
+import BaseInput from "./BaseInput.vue"
+import BaseTextarea from "./BaseTextarea.vue"
 
 const props = defineProps({
   show: {
