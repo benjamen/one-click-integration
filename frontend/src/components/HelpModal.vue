@@ -70,7 +70,7 @@
                     <i class="fas fa-flask text-success me-2"></i>
                     Testing & Learning
                   </h6>
-                  <p class="card-text small text-muted">
+                  <p class="card-text text-sm text-gray-600">
                     Trying out integrations, learning how they work, personal projects
                   </p>
                   <div class="badge bg-success">Quick Start</div>
@@ -85,7 +85,7 @@
                     <i class="fas fa-briefcase text-primary me-2"></i>
                     Business Use
                   </h6>
-                  <p class="card-text small text-muted">
+                  <p class="card-text text-sm text-gray-600">
                     Daily workflows, team collaboration, reliable automation
                   </p>
                   <div class="badge bg-primary">AI-Powered Setup</div>
@@ -100,7 +100,7 @@
                     <i class="fas fa-chart-line text-info me-2"></i>
                     High Volume
                   </h6>
-                  <p class="card-text small text-muted">
+                  <p class="card-text text-sm text-gray-600">
                     Processing hundreds of emails, large datasets, frequent API calls
                   </p>
                   <div class="badge bg-primary">AI-Powered Setup</div>
@@ -115,7 +115,7 @@
                     <i class="fas fa-building text-secondary me-2"></i>
                     Enterprise
                   </h6>
-                  <p class="card-text small text-muted">
+                  <p class="card-text text-sm text-gray-600">
                     Compliance requirements, existing infrastructure, custom configs
                   </p>
                   <div class="badge bg-secondary">Manual Setup</div>

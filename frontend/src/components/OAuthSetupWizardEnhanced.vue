@@ -1,7 +1,7 @@
 <template>
   <div
     class="modal fade"
-    :class="{ show: show, 'd-block': show }"
+    :class="{ show: show, 'block': show }"
     tabindex="-1"
     :style="{ backgroundColor: show ? 'rgba(0,0,0,0.5)' : '' }"
     @click.self="closeWizard"
@@ -11,11 +11,11 @@
         <!-- Header -->
         <div class="modal-header bg-gradient-primary">
           <div>
-            <h5 class="modal-title text-white font-weight-bold mb-0">
-              <i class="fas fa-magic me-2"></i>
+            <h5 class="modal-title text-white font-bold mb-0">
+              <i class="fas fa-magic mr-2"></i>
               OAuth Setup Wizard
             </h5>
-            <p class="text-white-50 small mb-0 mt-1">{{ providerName }}</p>
+            <p class="text-white-50 text-sm mb-0 mt-1">{{ providerName }}</p>
           </div>
           <button
             type="button"
@@ -89,7 +89,7 @@
                     :class="viewMode === 'cards' ? 'btn-primary' : 'btn-outline-secondary'"
                     @click="viewMode = 'cards'"
                   >
-                    <i class="fas fa-th-large me-1"></i> Cards
+                    <i class="fas fa-th-large mr-1"></i> Cards
                   </button>
                   <button
                     type="button"
@@ -97,7 +97,7 @@
                     :class="viewMode === 'compare' ? 'btn-primary' : 'btn-outline-secondary'"
                     @click="viewMode = 'compare'"
                   >
-                    <i class="fas fa-columns me-1"></i> Compare
+                    <i class="fas fa-columns mr-1"></i> Compare
                   </button>
                 </div>
               </div>
@@ -110,7 +110,7 @@
                   :class="tierColumnClass"
                 >
                   <div
-                    class="card h-100 setup-option position-relative"
+                    class="card h-100 setup-option relative"
                     :class="{
                       'border-primary selected': setupMethod === tier.key,
                       'recommended-tier': tier.config.recommended
@@ -122,7 +122,7 @@
                   >
                     <!-- Recommended Badge -->
                     <div v-if="tier.config.recommended" class="recommended-badge">
-                      <i class="fas fa-star me-1"></i> Recommended
+                      <i class="fas fa-star mr-1"></i> Recommended
                     </div>
 
                     <div class="card-body p-4">

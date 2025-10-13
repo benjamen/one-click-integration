@@ -734,10 +734,6 @@ function closeWizard() {
   justify-content: center;
 }
 
-.font-weight-bold {
-  font-weight: 700;
-}
-
 .modal.show {
   display: block;
 }
