@@ -1,78 +1,66 @@
 <template>
-  <div
-    class="modal fade show d-block"
-    tabindex="-1"
-    style="background-color: rgba(0,0,0,0.5);"
-    @click.self="$emit('close')"
+  <BaseModal
+    :model-value="true"
+    title="Which Setup Method Should I Choose?"
+    size="lg"
+    hide-confirm-button
+    cancel-text="Got it, thanks!"
+    @close="$emit('close')"
   >
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header bg-light">
-          <h5 class="modal-title">
-            <i class="fas fa-question-circle me-2 text-primary"></i>
-            Which Setup Method Should I Choose?
-          </h5>
-          <button
-            type="button"
-            class="btn-close"
-            @click="$emit('close')"
-          ></button>
-        </div>
-
-        <div class="modal-body">
+    <template #default>
           <!-- Decision Flow -->
           <div class="decision-flow mb-4">
-            <h6 class="fw-bold mb-3">Quick Decision Guide:</h6>
+            <h6 class="font-bold text-gray-900 mb-3">Quick Decision Guide:</h6>
 
             <div class="flow-item mb-3">
               <div class="flow-question">
-                <i class="fas fa-question-circle text-primary me-2"></i>
+                <i class="fas fa-question-circle text-primary-600 mr-2"></i>
                 Just testing or exploring?
               </div>
-              <div class="flow-answer ms-4">
-                <i class="fas fa-arrow-right text-success me-2"></i>
+              <div class="flow-answer ml-4">
+                <i class="fas fa-arrow-right text-green-600 mr-2"></i>
                 Choose <strong>Quick Start</strong> - Get started in seconds!
               </div>
             </div>
 
             <div class="flow-item mb-3">
               <div class="flow-question">
-                <i class="fas fa-question-circle text-primary me-2"></i>
+                <i class="fas fa-question-circle text-primary-600 mr-2"></i>
                 Need this for real work or production use?
               </div>
-              <div class="flow-answer ms-4">
-                <i class="fas fa-arrow-right text-success me-2"></i>
+              <div class="flow-answer ml-4">
+                <i class="fas fa-arrow-right text-green-600 mr-2"></i>
                 Choose <strong>AI-Powered Setup</strong> - Get unlimited quotas with guidance
               </div>
             </div>
 
             <div class="flow-item mb-3">
               <div class="flow-question">
-                <i class="fas fa-question-circle text-primary me-2"></i>
+                <i class="fas fa-question-circle text-primary-600 mr-2"></i>
                 Already have a Google Cloud project or need custom configuration?
               </div>
-              <div class="flow-answer ms-4">
-                <i class="fas fa-arrow-right text-success me-2"></i>
+              <div class="flow-answer ml-4">
+                <i class="fas fa-arrow-right text-green-600 mr-2"></i>
                 Choose <strong>Manual Setup</strong> - Full control over your setup
               </div>
             </div>
 
             <div class="flow-item">
               <div class="flow-question">
-                <i class="fas fa-question-circle text-primary me-2"></i>
+                <i class="fas fa-question-circle text-primary-600 mr-2"></i>
                 Need billing-required APIs (Maps, Vision AI, Translation)?
               </div>
-              <div class="flow-answer ms-4">
-                <i class="fas fa-arrow-right text-success me-2"></i>
+              <div class="flow-answer ml-4">
+                <i class="fas fa-arrow-right text-green-600 mr-2"></i>
                 Choose <strong>AI-Powered</strong> or <strong>Manual Setup</strong> - Quick Start doesn't support billing APIs
               </div>
             </div>
           </div>
 
-          <hr class="my-4">
+          <hr class="my-4 border-gray-200">
 
           <!-- Comparison by Use Case -->
-          <h6 class="fw-bold mb-3">Recommended by Use Case:</h6>
+          <h6 class="font-bold text-gray-900 mb-3">Recommended by Use Case:</h6>
 
           <div class="use-case-grid row g-3">
             <div class="col-md-6">
@@ -136,10 +124,10 @@
             </div>
           </div>
 
-          <hr class="my-4">
+          <hr class="my-4 border-gray-200">
 
           <!-- FAQ -->
-          <h6 class="fw-bold mb-3">Frequently Asked Questions:</h6>
+          <h6 class="font-bold text-gray-900 mb-3">Frequently Asked Questions:</h6>
 
           <div class="accordion" id="faqAccordion">
             <div class="accordion-item">
@@ -219,27 +207,29 @@
               </div>
             </div>
           </div>
-        </div>
+    </template>
 
-        <div class="modal-footer bg-light">
-          <small class="text-muted me-auto">
-            <i class="fas fa-info-circle me-1"></i>
-            Still have questions? <a href="https://docs.example.com" target="_blank">View full documentation</a>
-          </small>
-          <button
-            type="button"
-            class="btn btn-primary"
-            @click="$emit('close')"
-          >
-            Got it, thanks!
-          </button>
-        </div>
+    <template #footer>
+      <div class="flex items-center justify-between w-full">
+        <small class="text-gray-500 flex items-center gap-1">
+          <i class="fas fa-info-circle"></i>
+          Still have questions? <a href="https://docs.example.com" target="_blank" class="text-primary-600 hover:text-primary-700">View full documentation</a>
+        </small>
+        <BaseButton
+          variant="primary"
+          @click="$emit('close')"
+        >
+          Got it, thanks!
+        </BaseButton>
       </div>
-    </div>
-  </div>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup>
+import BaseModal from "./BaseModal.vue"
+import BaseButton from "./BaseButton.vue"
+
 defineProps({
   provider: {
     type: String,
@@ -251,10 +241,6 @@ defineEmits(['close'])
 </script>
 
 <style scoped>
-.modal.show {
-  display: block;
-}
-
 .flow-item {
   padding: 0.75rem;
   background: #f8f9fa;
