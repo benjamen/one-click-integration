@@ -1,7 +1,7 @@
 <template>
   <div
     class="modal fade"
-    :class="{ show: show, 'd-block': show }"
+    :class="{ show: show, 'block': show }"
     tabindex="-1"
     :style="{ backgroundColor: show ? 'rgba(0,0,0,0.5)' : '' }"
     @click.self="closeWizard"
@@ -30,8 +30,8 @@
                 </li>
               </ol>
             </nav>
-            <h5 class="modal-title text-white font-weight-bold mb-0">
-              <i class="fas fa-magic me-2"></i>
+            <h5 class="modal-title text-white font-bold mb-0">
+              <i class="fas fa-magic mr-2"></i>
               OAuth Setup Wizard
             </h5>
           </div>
@@ -46,13 +46,13 @@
         <!-- Body -->
         <div class="modal-body p-4">
           <!-- Progress Steps -->
-          <div class="row mb-4">
-            <div class="col-12">
-              <div class="d-flex justify-content-between align-items-center">
+          <div class="mb-4">
+            <div>
+              <div class="flex justify-between items-center">
                 <div
                   v-for="(step, index) in steps"
                   :key="index"
-                  class="flex-fill text-center position-relative"
+                  class="flex-1 text-center relative"
                 >
                   <div
                     class="step-circle mx-auto mb-2"
@@ -64,7 +64,7 @@
                     <i v-if="currentStep > index" class="fas fa-check"></i>
                     <span v-else>{{ index + 1 }}</span>
                   </div>
-                  <small class="d-block text-muted">{{ step.title }}</small>
+                  <small class="block text-gray-600">{{ step.title }}</small>
                   <div
                     v-if="index < steps.length - 1"
                     class="step-line"
@@ -79,11 +79,11 @@
           <div class="step-content">
             <!-- Step 0: Setup Method Choice -->
             <div v-if="currentStep === 0" class="step">
-              <h5 class="font-weight-bold mb-3 text-center">
-                <i class="fas fa-route text-primary me-2"></i>
+              <h5 class="font-bold text-gray-900 mb-3 text-center">
+                <i class="fas fa-route text-primary-600 mr-2"></i>
                 Choose Your Setup Method
               </h5>
-              <p class="text-center text-muted mb-4">
+              <p class="text-center text-gray-600 mb-4">
                 Select how you'd like to set up your {{ providerName }} integration
               </p>
 
@@ -100,28 +100,28 @@
                       <div class="mb-3">
                         <i class="fas fa-bolt fa-3x text-warning"></i>
                       </div>
-                      <h5 class="card-title font-weight-bold">
+                      <h5 class="card-title font-bold text-gray-900">
                         {{ tierConfig.tiers.default.icon }} {{ tierConfig.tiers.default.label }}
                       </h5>
-                      <p class="card-text text-muted small">
+                      <p class="card-text text-gray-600 text-sm">
                         {{ tierConfig.tiers.default.description }}
                       </p>
                       <div class="mt-3">
-                        <span class="badge bg-success me-1">{{ tierConfig.tiers.default.setup_time }}</span>
+                        <span class="badge bg-success mr-1">{{ tierConfig.tiers.default.setup_time }}</span>
                         <span class="badge bg-info">No Setup</span>
                       </div>
                       <hr class="my-3">
-                      <div class="text-start">
-                        <div class="small text-success mb-2">
-                          <i class="fas fa-check-circle me-1"></i> <strong>Pros:</strong>
+                      <div class="text-left">
+                        <div class="text-sm text-green-600 mb-2">
+                          <i class="fas fa-check-circle mr-1"></i> <strong>Pros:</strong>
                         </div>
-                        <ul class="small text-muted mb-2" style="font-size: 0.85rem;">
+                        <ul class="text-sm text-gray-600 mb-2" style="font-size: 0.85rem;">
                           <li v-for="adv in tierConfig.tiers.default.advantages.slice(0,3)" :key="adv">{{ adv }}</li>
                         </ul>
-                        <div class="small text-warning mb-2">
-                          <i class="fas fa-exclamation-circle me-1"></i> <strong>Limits:</strong>
+                        <div class="text-sm text-yellow-600 mb-2">
+                          <i class="fas fa-exclamation-circle mr-1"></i> <strong>Limits:</strong>
                         </div>
-                        <ul class="small text-muted" style="font-size: 0.85rem;">
+                        <ul class="text-sm text-gray-600" style="font-size: 0.85rem;">
                           <li v-for="lim in tierConfig.tiers.default.limitations.slice(0,2)" :key="lim">{{ lim }}</li>
                         </ul>
                       </div>
@@ -140,41 +140,41 @@
                     @click="tierConfig.tiers.ai.enabled ? setupMethod = 'ai' : null"
                     :style="{ cursor: tierConfig.tiers.ai.enabled ? 'pointer' : 'not-allowed', opacity: tierConfig.tiers.ai.enabled ? 1 : 0.7 }"
                   >
-                    <div class="card-body text-center p-4 position-relative">
+                    <div class="card-body text-center p-4 relative">
                       <!-- Upgrade Badge (if locked) -->
-                      <div v-if="tierConfig.tiers.ai.upgrade_required" class="position-absolute top-0 end-0 p-2">
+                      <div v-if="tierConfig.tiers.ai.upgrade_required" class="absolute top-0 right-0 p-2">
                         <span class="badge bg-warning">
-                          <i class="fas fa-lock me-1"></i>
+                          <i class="fas fa-lock mr-1"></i>
                           {{ tierConfig.tiers.ai.upgrade_tier }} Only
                         </span>
                       </div>
 
                       <div class="mb-3">
-                        <i class="fas fa-robot fa-3x text-primary"></i>
+                        <i class="fas fa-robot fa-3x text-primary-600"></i>
                       </div>
-                      <h5 class="card-title font-weight-bold">
+                      <h5 class="card-title font-bold text-gray-900">
                         {{ tierConfig.tiers.ai.icon }} {{ tierConfig.tiers.ai.label }}
                       </h5>
-                      <p class="card-text text-muted small">
+                      <p class="card-text text-gray-600 text-sm">
                         {{ tierConfig.tiers.ai.description }}
                       </p>
                       <div class="mt-3">
-                        <span v-if="tierConfig.tiers.ai.enabled" class="badge bg-success me-1">Recommended</span>
+                        <span v-if="tierConfig.tiers.ai.enabled" class="badge bg-success mr-1">Recommended</span>
                         <span class="badge bg-primary">{{ tierConfig.tiers.ai.setup_time }}</span>
                       </div>
                       <hr class="my-3">
 
                       <!-- Upgrade Message (if locked) -->
-                      <div v-if="tierConfig.tiers.ai.upgrade_required" class="alert alert-warning small mb-2">
-                        <i class="fas fa-star me-1"></i>
+                      <div v-if="tierConfig.tiers.ai.upgrade_required" class="alert alert-warning text-sm mb-2">
+                        <i class="fas fa-star mr-1"></i>
                         {{ tierConfig.tiers.ai.upgrade_message }}
                       </div>
 
-                      <div class="text-start">
-                        <div class="small text-success mb-2">
-                          <i class="fas fa-check-circle me-1"></i> <strong>Pros:</strong>
+                      <div class="text-left">
+                        <div class="text-sm text-green-600 mb-2">
+                          <i class="fas fa-check-circle mr-1"></i> <strong>Pros:</strong>
                         </div>
-                        <ul class="small text-muted mb-2" style="font-size: 0.85rem;">
+                        <ul class="text-sm text-gray-600 mb-2" style="font-size: 0.85rem;">
                           <li v-for="adv in tierConfig.tiers.ai.advantages.slice(0,3)" :key="adv">{{ adv }}</li>
                         </ul>
                       </div>
@@ -207,10 +207,10 @@
                       <div class="mb-3">
                         <i class="fas fa-tools fa-3x text-secondary"></i>
                       </div>
-                      <h5 class="card-title font-weight-bold">
+                      <h5 class="card-title font-bold text-gray-900">
                         {{ tierConfig?.tiers?.manual?.icon || '🔧' }} {{ tierConfig?.tiers?.manual?.label || 'Manual Setup' }}
                       </h5>
-                      <p class="card-text text-muted small">
+                      <p class="card-text text-gray-600 text-sm">
                         {{ tierConfig?.tiers?.manual?.description || 'Step-by-step setup' }}
                       </p>
                       <div class="mt-3">
@@ -218,11 +218,11 @@
                         <span class="badge bg-info">{{ tierConfig?.tiers?.manual?.setup_time || '~10 min' }}</span>
                       </div>
                       <hr class="my-3">
-                      <div class="text-start">
-                        <div class="small text-success mb-2">
-                          <i class="fas fa-check-circle me-1"></i> <strong>Pros:</strong>
+                      <div class="text-left">
+                        <div class="text-sm text-green-600 mb-2">
+                          <i class="fas fa-check-circle mr-1"></i> <strong>Pros:</strong>
                         </div>
-                        <ul class="small text-muted mb-2" style="font-size: 0.85rem;">
+                        <ul class="text-sm text-gray-600 mb-2" style="font-size: 0.85rem;">
                           <li v-for="adv in (tierConfig?.tiers?.manual?.advantages || []).slice(0,3)" :key="adv">{{ adv }}</li>
                         </ul>
                       </div>
@@ -246,24 +246,24 @@
 
             <!-- Step 0 (Non-Google): Create Google Cloud Project -->
             <div v-if="currentStep === 0 && provider !== 'google'" class="step">
-              <h5 class="font-weight-bold mb-3">
-                <i class="fab fa-google text-primary me-2"></i>
+              <h5 class="font-bold text-gray-900 mb-3">
+                <i class="fab fa-google text-primary-600 mr-2"></i>
                 Create Google Cloud Project
               </h5>
               <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
+                <i class="fas fa-info-circle mr-2"></i>
                 You'll need a Google account to create a Cloud project.
               </div>
               <ol class="setup-steps">
                 <li class="mb-3">
-                  Go to <a href="https://console.cloud.google.com" target="_blank" class="text-primary">
+                  Go to <a href="https://console.cloud.google.com" target="_blank" class="text-primary-600">
                     <strong>Google Cloud Console</strong>
-                    <i class="fas fa-external-link-alt ms-1 small"></i>
+                    <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                   </a>
                 </li>
                 <li class="mb-3">
                   Click the project dropdown at the top
-                  <br><small class="text-muted">It usually says "Select a project" or shows your current project</small>
+                  <br><small class="text-gray-600">It usually says "Select a project" or shows your current project</small>
                 </li>
                 <li class="mb-3">
                   Click <strong>"New Project"</strong> in the top right
@@ -287,27 +287,27 @@
 
             <!-- Step 1: Enable APIs -->
             <div v-if="currentStep === 1" class="step">
-              <h5 class="font-weight-bold mb-3">
-                <i class="fas fa-toggle-on text-success me-2"></i>
+              <h5 class="font-bold text-gray-900 mb-3">
+                <i class="fas fa-toggle-on text-green-600 mr-2"></i>
                 Enable Required APIs
               </h5>
               <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle me-2"></i>
+                <i class="fas fa-exclamation-triangle mr-2"></i>
                 Make sure your new project is selected in the project dropdown!
               </div>
               <ol class="setup-steps">
                 <li class="mb-3">
-                  Go to <a href="https://console.cloud.google.com/apis/library" target="_blank" class="text-primary">
+                  Go to <a href="https://console.cloud.google.com/apis/library" target="_blank" class="text-primary-600">
                     <strong>APIs & Services > Library</strong>
-                    <i class="fas fa-external-link-alt ms-1 small"></i>
+                    <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                   </a>
                 </li>
                 <li class="mb-3">
                   Search for and enable these APIs:
                   <div class="mt-2">
-                    <span class="badge bg-gradient-primary me-2 mb-2">Gmail API</span>
-                    <span class="badge bg-gradient-info me-2 mb-2">Google Sheets API</span>
-                    <span class="badge bg-gradient-success me-2 mb-2">Google Drive API</span>
+                    <span class="badge bg-gradient-primary mr-2 mb-2">Gmail API</span>
+                    <span class="badge bg-gradient-info mr-2 mb-2">Google Sheets API</span>
+                    <span class="badge bg-gradient-success mr-2 mb-2">Google Drive API</span>
                   </div>
                 </li>
                 <li class="mb-3">
@@ -323,20 +323,20 @@
 
             <!-- Step 2: Configure OAuth Consent Screen -->
             <div v-if="currentStep === 2" class="step">
-              <h5 class="font-weight-bold mb-3">
-                <i class="fas fa-shield-alt text-warning me-2"></i>
+              <h5 class="font-bold text-gray-900 mb-3">
+                <i class="fas fa-shield-alt text-yellow-500 mr-2"></i>
                 Configure OAuth Consent Screen
               </h5>
               <ol class="setup-steps">
                 <li class="mb-3">
-                  Go to <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" class="text-primary">
+                  Go to <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" class="text-primary-600">
                     <strong>APIs & Services > OAuth consent screen</strong>
-                    <i class="fas fa-external-link-alt ms-1 small"></i>
+                    <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                   </a>
                 </li>
                 <li class="mb-3">
                   Select <strong>"External"</strong> user type
-                  <br><small class="text-muted">This allows you to use any Google account for testing</small>
+                  <br><small class="text-gray-600">This allows you to use any Google account for testing</small>
                 </li>
                 <li class="mb-3">
                   Click <strong>"Create"</strong>
@@ -385,15 +385,15 @@
 
             <!-- Step 3: Create OAuth Credentials -->
             <div v-if="currentStep === 3" class="step">
-              <h5 class="font-weight-bold mb-3">
-                <i class="fas fa-key text-danger me-2"></i>
+              <h5 class="font-bold text-gray-900 mb-3">
+                <i class="fas fa-key text-red-600 mr-2"></i>
                 Create OAuth 2.0 Credentials
               </h5>
               <ol class="setup-steps">
                 <li class="mb-3">
-                  Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-primary">
+                  Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-primary-600">
                     <strong>APIs & Services > Credentials</strong>
-                    <i class="fas fa-external-link-alt ms-1 small"></i>
+                    <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                   </a>
                 </li>
                 <li class="mb-3">
@@ -429,7 +429,7 @@
                     >
                     </BaseButton>
                   </div>
-                  <small class="text-muted">Click the copy button to copy the URI</small>
+                  <small class="text-gray-600">Click the copy button to copy the URI</small>
                 </li>
                 <li class="mb-3">
                   Click <strong>"Create"</strong>
@@ -437,7 +437,7 @@
                 <li class="mb-3">
                   A dialog will appear showing your credentials
                   <div class="alert alert-warning mt-2">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
                     <strong>Important:</strong> Copy both the Client ID and Client Secret - you'll need them in the next step!
                   </div>
                 </li>
@@ -446,8 +446,8 @@
 
             <!-- Step 4: Configure Lodgeick -->
             <div v-if="currentStep === 4" class="step">
-              <h5 class="font-weight-bold mb-3">
-                <i class="fas fa-cog text-info me-2"></i>
+              <h5 class="font-bold text-gray-900 mb-3">
+                <i class="fas fa-cog text-blue-500 mr-2"></i>
                 Configure Lodgeick
               </h5>
               <p>Enter your OAuth credentials from Google Cloud Console:</p>
@@ -483,7 +483,7 @@
               </BaseInput>
 
               <div class="alert alert-success" v-if="clientId && clientSecret">
-                <i class="fas fa-check-circle me-2"></i>
+                <i class="fas fa-check-circle mr-2"></i>
                 Credentials look good! Click "Save & Test Connection" to finish.
               </div>
             </div>
@@ -493,12 +493,12 @@
               <div class="icon icon-shape bg-gradient-success shadow-success mx-auto mb-4" style="width: 80px; height: 80px;">
                 <i class="fas fa-check text-white" style="font-size: 2.5rem;"></i>
               </div>
-              <h4 class="font-weight-bold mb-3">Setup Complete!</h4>
-              <p class="text-muted mb-4">
+              <h4 class="font-bold text-gray-900 mb-3">Setup Complete!</h4>
+              <p class="text-gray-600 mb-4">
                 Your OAuth credentials have been configured successfully.
               </p>
               <div class="alert alert-info">
-                <i class="fas fa-lightbulb me-2"></i>
+                <i class="fas fa-lightbulb mr-2"></i>
                 You can now close this wizard and click "Connect App" to authenticate with {{ providerName }}.
               </div>
             </div>
