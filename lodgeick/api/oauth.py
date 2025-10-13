@@ -264,7 +264,8 @@ def save_oauth_credentials(credentials):
 def build_auth_url(config, state, redirect_uri=None):
 	"""Build OAuth authorization URL"""
 	if not redirect_uri:
-		redirect_uri = frappe.utils.get_url(f"/api/method/lodgeick.api.oauth.oauth_callback")
+		# Use the frontend OAuth callback route, not the API endpoint
+		redirect_uri = frappe.utils.get_url("/oauth/callback")
 
 	params = {
 		"client_id": config["client_id"],
@@ -283,7 +284,8 @@ def build_auth_url(config, state, redirect_uri=None):
 def exchange_code_for_tokens(config, code, redirect_uri):
 	"""Exchange authorization code for access and refresh tokens"""
 	if not redirect_uri:
-		redirect_uri = frappe.utils.get_url(f"/api/method/lodgeick.api.oauth.oauth_callback")
+		# Use the frontend OAuth callback route, not the API endpoint
+		redirect_uri = frappe.utils.get_url("/oauth/callback")
 
 	data = {
 		"client_id": config["client_id"],
