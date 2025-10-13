@@ -25,21 +25,14 @@ export default defineConfig(({ command, mode }) => ({
 		rollupOptions: {
 			output: {
 				manualChunks(id) {
-					// Vendor chunk for core Vue libraries
+					// Simplified chunking strategy to avoid circular dependencies
 					if (id.includes('node_modules')) {
-						if (id.includes('vue') || id.includes('pinia') || id.includes('vue-router')) {
-							return 'vendor';
-						}
-						// frappe-ui into its own chunk
+						// frappe-ui into its own chunk (most stable)
 						if (id.includes('frappe-ui')) {
 							return 'frappe-ui';
 						}
-						// All other node_modules into a separate chunk
-						return 'vendor-libs';
-					}
-					// Base UI components into their own chunk
-					if (id.includes('src/components/base/')) {
-						return 'ui-components';
+						// All other node_modules together (safer than splitting)
+						return 'vendor';
 					}
 				},
 			},
