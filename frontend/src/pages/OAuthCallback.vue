@@ -1,7 +1,7 @@
 <template>
-  <div class="oauth-callback-page d-flex align-items-center justify-content-center min-vh-100 bg-gradient-dark">
+  <div class="oauth-callback-page flex items-center justify-center min-vh-100 bg-gradient-dark">
     <div class="container">
-      <div class="row justify-content-center">
+      <div class="flex justify-center">
         <div class="col-md-6">
           <div class="card shadow-lg">
             <div class="card-body p-5 text-center">
@@ -10,8 +10,8 @@
                 <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
                   <span class="visually-hidden">Processing...</span>
                 </div>
-                <h4 class="font-weight-bold mb-2">Connecting your account</h4>
-                <p class="text-muted">Please wait while we complete the authentication...</p>
+                <h4 class="font-bold mb-2">Connecting your account</h4>
+                <p class="text-gray-600">Please wait while we complete the authentication...</p>
               </div>
 
               <!-- Success State -->
@@ -19,9 +19,9 @@
                 <div class="icon icon-shape bg-gradient-success shadow-success mx-auto mb-4" style="width: 80px; height: 80px;">
                   <i class="fas fa-check text-white" style="font-size: 2rem;"></i>
                 </div>
-                <h4 class="font-weight-bold mb-2">Successfully Connected!</h4>
-                <p class="text-muted mb-4">Your account has been linked successfully.</p>
-                <p class="text-sm text-muted">This window will close automatically...</p>
+                <h4 class="font-bold mb-2">Successfully Connected!</h4>
+                <p class="text-gray-600 mb-4">Your account has been linked successfully.</p>
+                <p class="text-sm text-gray-600">This window will close automatically...</p>
               </div>
 
               <!-- Error State -->
@@ -29,8 +29,8 @@
                 <div class="icon icon-shape bg-gradient-danger shadow-danger mx-auto mb-4" style="width: 80px; height: 80px;">
                   <i class="fas fa-times text-white" style="font-size: 2rem;"></i>
                 </div>
-                <h4 class="font-weight-bold mb-2">Connection Failed</h4>
-                <p class="text-muted mb-4">{{ error }}</p>
+                <h4 class="font-bold mb-2">Connection Failed</h4>
+                <p class="text-gray-600 mb-4">{{ error }}</p>
                 <button @click="closeWindow" class="btn btn-primary">
                   Close Window
                 </button>
@@ -128,7 +128,4 @@ function closeWindow() {
   justify-content: center;
 }
 
-.font-weight-bold {
-  font-weight: 700;
-}
 </style>

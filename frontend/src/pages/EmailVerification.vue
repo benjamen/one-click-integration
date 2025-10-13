@@ -1,7 +1,7 @@
 <template>
   <div class="auth-page">
     <div class="container">
-      <div class="row justify-content-center">
+      <div class="flex justify-center">
         <div class="col-lg-5 col-md-7">
           <div class="card shadow-lg border-0 mt-5">
             <div class="card-header bg-gradient-primary p-4 text-center">
@@ -10,17 +10,17 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h3 class="text-white font-weight-bold mb-0">Check Your Email</h3>
+              <h3 class="text-white font-bold mb-0">Check Your Email</h3>
             </div>
             <div class="card-body p-4 text-center">
               <div class="mb-4">
-                <p class="text-muted mb-3">
+                <p class="text-gray-600 mb-3">
                   We've sent a verification link to:
                 </p>
-                <p class="font-weight-bold text-dark mb-3">
+                <p class="font-bold text-dark mb-3">
                   {{ email }}
                 </p>
-                <p class="text-muted small">
+                <p class="text-gray-600 text-sm">
                   Click the link in the email to verify your account and complete your registration.
                 </p>
               </div>
@@ -38,7 +38,7 @@
                   class="btn btn-outline-primary"
                   :disabled="resending || countdown > 0"
                 >
-                  <span v-if="resending" class="spinner-border spinner-border-sm me-2"></span>
+                  <span v-if="resending" class="spinner-border spinner-border-sm mr-2"></span>
                   {{ resending ? 'Sending...' : countdown > 0 ? `Resend in ${countdown}s` : 'Resend Email' }}
                 </button>
 
@@ -51,7 +51,7 @@
 
                 <router-link
                   to="/"
-                  class="btn btn-link text-muted no-underline"
+                  class="btn btn-link text-gray-600 no-underline"
                 >
                   <svg class="back-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -228,7 +228,4 @@ onUnmounted(() => {
   text-decoration: none !important;
 }
 
-.font-weight-bold {
-  font-weight: 700;
-}
 </style>

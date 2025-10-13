@@ -1,17 +1,17 @@
 <template>
   <div class="auth-page">
     <div class="container">
-      <div class="row justify-content-center">
+      <div class="flex justify-center">
         <div class="col-lg-5 col-md-7">
           <div class="card shadow-lg border-0 mt-5">
             <div class="card-header bg-gradient-primary p-4 text-center">
-              <h3 class="text-white font-weight-bold mb-0">Create Your Account</h3>
+              <h3 class="text-white font-bold mb-0">Create Your Account</h3>
               <p class="text-white opacity-8 mb-0 mt-2">Start connecting your apps today</p>
             </div>
             <div class="card-body p-4">
               <form @submit.prevent="handleSignup">
                 <div class="mb-3">
-                  <label class="form-label font-weight-bold">Full Name</label>
+                  <label class="form-label font-bold">Full Name</label>
                   <input
                     v-model="formData.fullName"
                     type="text"
@@ -21,7 +21,7 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label class="form-label font-weight-bold">Email Address</label>
+                  <label class="form-label font-bold">Email Address</label>
                   <input
                     v-model="formData.email"
                     type="email"
@@ -31,7 +31,7 @@
                   />
                 </div>
                 <div class="mb-3">
-                  <label class="form-label font-weight-bold">Password</label>
+                  <label class="form-label font-bold">Password</label>
                   <input
                     v-model="formData.password"
                     type="password"
@@ -40,7 +40,7 @@
                     required
                     minlength="6"
                   />
-                  <small class="text-muted">Minimum 6 characters</small>
+                  <small class="text-gray-600">Minimum 6 characters</small>
                 </div>
 
                 <div v-if="error" class="alert alert-danger">
@@ -52,18 +52,18 @@
                   class="btn btn-primary w-100 mb-3"
                   :disabled="loading"
                 >
-                  <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
+                  <span v-if="loading" class="spinner-border spinner-border-sm mr-2"></span>
                   {{ loading ? 'Creating Account...' : 'Create Account' }}
                 </button>
 
                 <div class="text-center">
-                  <p class="text-muted mb-2">
+                  <p class="text-gray-600 mb-2">
                     Already have an account?
-                    <router-link to="/account/login" class="text-primary font-weight-bold">
+                    <router-link to="/account/login" class="text-primary-600 font-bold">
                       Sign In
                     </router-link>
                   </p>
-                  <router-link to="/" class="text-muted small no-underline">
+                  <router-link to="/" class="text-gray-600 text-sm no-underline">
                     <svg class="back-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -177,10 +177,6 @@ function handleSignup() {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 20px rgba(121, 40, 202, 0.4);
-}
-
-.font-weight-bold {
-  font-weight: 700;
 }
 
 .back-icon {
