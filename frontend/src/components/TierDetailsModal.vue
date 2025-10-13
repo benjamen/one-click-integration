@@ -13,9 +13,14 @@
           </h5>
           <button
             type="button"
-            class="btn-close"
+            class="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 transition-colors"
             @click="$emit('close')"
-          ></button>
+            aria-label="Close"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
         <div class="modal-body">
@@ -90,13 +95,12 @@
         </div>
 
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
+          <BaseButton
+            variant="secondary"
             @click="$emit('close')"
           >
             Close
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -104,6 +108,8 @@
 </template>
 
 <script setup>
+import BaseButton from "./BaseButton.vue"
+
 defineProps({
   tier: {
     type: Object,

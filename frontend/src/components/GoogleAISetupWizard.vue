@@ -53,20 +53,18 @@
               {{ parseError }}
             </div>
 
-            <button
-              class="btn btn-primary btn-lg w-100"
+            <BaseButton
+              variant="primary"
+              size="lg"
+              full-width
               @click="parseIntent"
               :disabled="!userIntent || parsing"
+              :loading="parsing"
+              loading-text="AI is analyzing your request..."
+              icon-left="fas fa-magic"
             >
-              <span v-if="parsing">
-                <span class="spinner-border spinner-border-sm me-2"></span>
-                AI is analyzing your request...
-              </span>
-              <span v-else>
-                <i class="fas fa-magic me-2"></i>
-                Analyze with AI
-              </span>
-            </button>
+              Analyze with AI
+            </BaseButton>
           </div>
 
           <!-- Step 2: API Preview & Billing Check -->
@@ -194,19 +192,23 @@
               </div>
             </div>
 
-            <div class="d-flex gap-2 mt-4">
-              <button class="btn btn-secondary" @click="currentStep = 'intent'">
-                <i class="fas fa-arrow-left me-2"></i>
+            <div class="flex gap-2 mt-4">
+              <BaseButton
+                variant="secondary"
+                @click="currentStep = 'intent'"
+                icon-left="fas fa-arrow-left"
+              >
                 Back
-              </button>
-              <button
-                class="btn btn-primary flex-fill"
+              </BaseButton>
+              <BaseButton
+                variant="primary"
+                full-width
                 @click="proceedToSetup"
                 :disabled="!setupMethod"
+                icon-left="fas fa-arrow-right"
               >
-                <i class="fas fa-arrow-right me-2"></i>
                 Continue with {{ setupMethod === 'auto' ? 'Automated' : 'Manual' }} Setup
-              </button>
+              </BaseButton>
             </div>
 
             <!-- Project Name Input for Auto Setup -->
@@ -224,20 +226,17 @@
               <small class="text-muted d-block mb-3">
                 A unique project ID will be generated automatically
               </small>
-              <button
-                class="btn btn-success w-100"
+              <BaseButton
+                variant="success"
+                full-width
                 @click="createProject"
                 :disabled="!projectName || creatingProject"
+                :loading="creatingProject"
+                loading-text="Creating project and enabling APIs..."
+                icon-left="fas fa-rocket"
               >
-                <span v-if="creatingProject">
-                  <span class="spinner-border spinner-border-sm me-2"></span>
-                  Creating project and enabling APIs...
-                </span>
-                <span v-else>
-                  <i class="fas fa-rocket me-2"></i>
-                  Create Google Cloud Project
-                </span>
-              </button>
+                Create Google Cloud Project
+              </BaseButton>
             </div>
           </div>
 
@@ -359,28 +358,32 @@
                     :value="redirectUri"
                     readonly
                   >
-                  <button
-                    class="btn btn-outline-secondary"
+                  <BaseButton
+                    variant="outline-secondary"
                     @click="copyToClipboard(redirectUri)"
+                    icon-left="fas fa-copy"
                   >
-                    <i class="fas fa-copy"></i>
-                  </button>
+                  </BaseButton>
                 </div>
               </div>
             </div>
 
-            <div class="d-flex gap-2 mt-4">
-              <button class="btn btn-secondary" @click="currentStep = 'preview'">
-                <i class="fas fa-arrow-left me-2"></i>
-                Back
-              </button>
-              <button
-                class="btn btn-primary flex-fill"
-                @click="currentStep = 'oauth_input'"
+            <div class="flex gap-2 mt-4">
+              <BaseButton
+                variant="secondary"
+                @click="currentStep = 'preview'"
+                icon-left="fas fa-arrow-left"
               >
-                <i class="fas fa-arrow-right me-2"></i>
+                Back
+              </BaseButton>
+              <BaseButton
+                variant="primary"
+                full-width
+                @click="currentStep = 'oauth_input'"
+                icon-right="fas fa-arrow-right"
+              >
                 I've Completed the Setup
-              </button>
+              </BaseButton>
             </div>
           </div>
 
@@ -442,25 +445,29 @@
                   <li class="mb-2">
                     Add redirect URI:
                     <code class="bg-white px-2 py-1 rounded">{{ redirectUri }}</code>
-                    <button
-                      class="btn btn-sm btn-outline-secondary ms-2"
+                    <BaseButton
+                      variant="outline-secondary"
+                      size="sm"
                       @click="copyToClipboard(redirectUri)"
+                      icon-left="fas fa-copy"
+                      class="ms-2"
                     >
-                      <i class="fas fa-copy"></i>
-                    </button>
+                    </BaseButton>
                   </li>
                   <li>Copy the Client ID and Client Secret</li>
                 </ol>
               </div>
             </div>
 
-            <button
-              class="btn btn-primary w-100 mt-3"
+            <BaseButton
+              variant="primary"
+              full-width
+              class="mt-3"
               @click="currentStep = 'oauth_input'"
+              icon-left="fas fa-arrow-right"
             >
-              <i class="fas fa-arrow-right me-2"></i>
               I've Created OAuth Credentials
-            </button>
+            </BaseButton>
           </div>
 
           <!-- Step 4: OAuth Credentials Input -->
@@ -495,29 +502,26 @@
                   class="form-control"
                   placeholder="GOCSPX-xxxxxxxxxxxxx"
                 >
-                <button
-                  class="btn btn-outline-secondary"
+                <BaseButton
+                  variant="outline-secondary"
                   @click="showSecret = !showSecret"
+                  :icon-left="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"
                 >
-                  <i :class="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-                </button>
+                </BaseButton>
               </div>
             </div>
 
-            <button
-              class="btn btn-success w-100"
+            <BaseButton
+              variant="success"
+              full-width
               @click="saveOAuthCredentials"
               :disabled="!oauthClientId || !oauthClientSecret || savingOAuth"
+              :loading="savingOAuth"
+              loading-text="Saving & Syncing to n8n..."
+              icon-left="fas fa-save"
             >
-              <span v-if="savingOAuth">
-                <span class="spinner-border spinner-border-sm me-2"></span>
-                Saving & Syncing to n8n...
-              </span>
-              <span v-else>
-                <i class="fas fa-save me-2"></i>
-                Save & Sync to n8n
-              </span>
-            </button>
+              Save & Sync to n8n
+            </BaseButton>
           </div>
 
           <!-- Step 5: Complete -->
@@ -538,10 +542,14 @@
               You can now use these credentials in your n8n workflows and Lodgeick integrations.
             </div>
 
-            <button class="btn btn-primary btn-lg" @click="closeWizard">
-              <i class="fas fa-check me-2"></i>
+            <BaseButton
+              variant="primary"
+              size="lg"
+              @click="closeWizard"
+              icon-left="fas fa-check"
+            >
               Done
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -552,6 +560,7 @@
 <script setup>
 import { ref, computed } from "vue"
 import { createResource } from "frappe-ui"
+import BaseButton from "./BaseButton.vue"
 
 const props = defineProps({
   show: {

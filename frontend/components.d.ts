@@ -11,6 +11,7 @@ declare module 'vue' {
     AccountCard: typeof import('./src/components/AccountCard.vue')['default']
     AccountSidebar: typeof import('./src/components/AccountSidebar.vue')['default']
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
+    BaseButton: typeof import('./src/components/BaseButton.vue')['default']
     CallToAction: typeof import('./src/components/CallToAction.vue')['default']
     ConfirmModal: typeof import('./src/components/ConfirmModal.vue')['default']
     FeatureGrid: typeof import('./src/components/FeatureGrid.vue')['default']

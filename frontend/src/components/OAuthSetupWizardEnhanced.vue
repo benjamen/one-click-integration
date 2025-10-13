@@ -247,13 +247,13 @@
                     <tr>
                       <td></td>
                       <td v-for="tier in availableTiers" :key="`select-${tier.key}`" class="text-center">
-                        <button
-                          class="btn btn-sm"
-                          :class="setupMethod === tier.key ? 'btn-primary' : 'btn-outline-primary'"
+                        <BaseButton
+                          size="sm"
+                          :variant="setupMethod === tier.key ? 'primary' : 'outline-primary'"
                           @click="selectTier(tier.key)"
                         >
                           {{ setupMethod === tier.key ? '✓ Selected' : 'Select' }}
-                        </button>
+                        </BaseButton>
                       </td>
                     </tr>
                   </tbody>
@@ -271,20 +271,18 @@
 
               <!-- Continue Button -->
               <div class="text-center mt-4" v-if="availableTiers.length > 0">
-                <button
-                  class="btn btn-primary btn-lg px-5"
+                <BaseButton
+                  variant="primary"
+                  size="lg"
+                  class="px-5"
                   @click="proceedWithSetupMethod"
                   :disabled="!setupMethod || processing"
+                  :loading="processing"
+                  loading-text="Processing..."
+                  icon-left="fas fa-arrow-right"
                 >
-                  <span v-if="processing">
-                    <span class="spinner-border spinner-border-sm me-2"></span>
-                    Processing...
-                  </span>
-                  <span v-else>
-                    <i class="fas fa-arrow-right me-2"></i>
-                    Continue with {{ setupMethodLabel }}
-                  </span>
-                </button>
+                  Continue with {{ setupMethodLabel }}
+                </BaseButton>
               </div>
 
               <!-- Help Text -->
@@ -318,23 +316,22 @@
 
         <!-- Footer -->
         <div class="modal-footer border-top">
-          <button
+          <BaseButton
             v-if="currentStep > 0 && currentStep < 5 && setupMethod !== 'default'"
-            type="button"
-            class="btn btn-outline-secondary"
+            variant="outline-secondary"
             @click="previousStep"
+            icon-left="fas fa-arrow-left"
           >
-            <i class="fas fa-arrow-left me-2"></i>
             Previous
-          </button>
-          <button
+          </BaseButton>
+          <BaseButton
             v-if="currentStep > 0 && setupMethod !== 'default'"
-            type="button"
-            class="btn btn-link text-muted"
+            variant="link"
             @click="resetWizard"
+            icon-left="fas fa-redo"
           >
-            <i class="fas fa-redo me-1"></i> Start Over
-          </button>
+            Start Over
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -359,6 +356,7 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue"
 import { createResource, call } from "frappe-ui"
+import BaseButton from "./BaseButton.vue"
 import TierDetailsModal from './TierDetailsModal.vue'
 import HelpModal from './HelpModal.vue'
 

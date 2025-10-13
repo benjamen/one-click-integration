@@ -181,10 +181,15 @@
 
                       <!-- Upgrade Button (if locked) -->
                       <div v-if="tierConfig.tiers.ai.upgrade_required" class="mt-3">
-                        <button class="btn btn-warning btn-sm w-100" @click.stop="showUpgradeModal">
-                          <i class="fas fa-arrow-up me-1"></i>
+                        <BaseButton
+                          variant="warning"
+                          size="sm"
+                          full-width
+                          @click.stop="showUpgradeModal"
+                          icon-left="fas fa-arrow-up"
+                        >
                           Upgrade to {{ tierConfig.tiers.ai.upgrade_tier }}
-                        </button>
+                        </BaseButton>
                       </div>
                     </div>
                   </div>
@@ -227,14 +232,15 @@
               </div>
 
               <div class="text-center mt-4">
-                <button
-                  class="btn btn-primary btn-lg"
+                <BaseButton
+                  variant="primary"
+                  size="lg"
                   @click="proceedWithSetupMethod"
                   :disabled="!setupMethod"
+                  icon-right="fas fa-arrow-right"
                 >
-                  <i class="fas fa-arrow-right me-2"></i>
                   Continue with {{ setupMethodLabel }}
-                </button>
+                </BaseButton>
               </div>
             </div>
 
@@ -414,13 +420,14 @@
                       :value="redirectUri"
                       readonly
                     >
-                    <button
-                      class="btn btn-outline-secondary"
+                    <BaseButton
+                      variant="outline-secondary"
+                      size="md"
                       aria-label="Copy redirect URI to clipboard"
                       @click="copyToClipboard(redirectUri)"
+                      icon-left="fas fa-copy"
                     >
-                      <i class="fas fa-copy"></i>
-                    </button>
+                    </BaseButton>
                   </div>
                   <small class="text-muted">Click the copy button to copy the URI</small>
                 </li>
@@ -473,13 +480,14 @@
                     class="form-control"
                     placeholder="GOCSPX-xxxxxxxxxxxxx"
                   >
-                  <button
-                    class="btn btn-outline-secondary"
+                  <BaseButton
+                    variant="outline-secondary"
+                    size="md"
                     :aria-label="showSecret ? 'Hide client secret' : 'Show client secret'"
                     @click="showSecret = !showSecret"
+                    :icon-left="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"
                   >
-                    <i :class="showSecret ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
-                  </button>
+                  </BaseButton>
                 </div>
                 <small class="text-muted">
                   Usually starts with GOCSPX-
@@ -511,49 +519,41 @@
 
         <!-- Footer -->
         <div class="modal-footer">
-          <button
+          <BaseButton
             v-if="currentStep > 0 && currentStep < 5"
-            type="button"
-            class="btn btn-secondary"
+            variant="secondary"
             @click="previousStep"
+            icon-left="fas fa-arrow-left"
           >
-            <i class="fas fa-arrow-left me-2"></i>
             Previous
-          </button>
-          <button
+          </BaseButton>
+          <BaseButton
             v-if="currentStep < 4"
-            type="button"
-            class="btn btn-primary"
+            variant="primary"
             @click="nextStep"
+            icon-right="fas fa-arrow-right"
           >
             Next
-            <i class="fas fa-arrow-right ms-2"></i>
-          </button>
-          <button
+          </BaseButton>
+          <BaseButton
             v-if="currentStep === 4"
-            type="button"
-            class="btn btn-success"
+            variant="success"
             @click="saveCredentials"
             :disabled="!clientId || !clientSecret || saving"
+            :loading="saving"
+            loading-text="Saving..."
+            icon-left="fas fa-save"
           >
-            <span v-if="saving">
-              <span class="spinner-border spinner-border-sm me-2"></span>
-              Saving...
-            </span>
-            <span v-else>
-              <i class="fas fa-save me-2"></i>
-              Save & Test Connection
-            </span>
-          </button>
-          <button
+            Save & Test Connection
+          </BaseButton>
+          <BaseButton
             v-if="currentStep === 5"
-            type="button"
-            class="btn btn-primary"
+            variant="primary"
             @click="closeWizard"
+            icon-left="fas fa-check"
           >
-            <i class="fas fa-check me-2"></i>
             Done
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -564,6 +564,7 @@
 import { ref, computed, watch, onMounted } from "vue"
 import { createResource, call } from "frappe-ui"
 import { useToast } from "@/composables/useToast"
+import BaseButton from "./BaseButton.vue"
 
 const props = defineProps({
   show: {
