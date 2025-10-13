@@ -29,19 +29,19 @@
           <!-- Loading State -->
           <div v-if="loading" class="text-center py-5">
             <div class="spinner-border text-primary mb-3" role="status">
-              <span class="visually-hidden">Loading...</span>
+              <span class="sr-only">Loading...</span>
             </div>
-            <p class="text-muted">Loading setup options...</p>
+            <p class="text-gray-600">Loading setup options...</p>
           </div>
 
           <!-- Progress Steps (Only shown after tier selection) -->
-          <div v-if="!loading && setupMethod && currentStep > 0" class="row mb-4">
-            <div class="col-12">
-              <div class="d-flex justify-content-between align-items-center">
+          <div v-if="!loading && setupMethod && currentStep > 0" class="mb-4">
+            <div>
+              <div class="flex justify-between items-center">
                 <div
                   v-for="(step, index) in filteredSteps"
                   :key="index"
-                  class="flex-fill text-center position-relative"
+                  class="flex-1 text-center relative"
                 >
                   <div
                     class="step-circle mx-auto mb-2"
@@ -53,7 +53,7 @@
                     <i v-if="currentStep > index + 1" class="fas fa-check"></i>
                     <span v-else>{{ index + 1 }}</span>
                   </div>
-                  <small class="d-block text-muted">{{ step.title }}</small>
+                  <small class="block text-gray-600">{{ step.title }}</small>
                   <div
                     v-if="index < filteredSteps.length - 1"
                     class="step-line"
@@ -71,11 +71,11 @@
             <div v-if="currentStep === 0" class="step">
               <!-- Header with Context -->
               <div class="text-center mb-4">
-                <h5 class="font-weight-bold mb-2">
-                  <i class="fas fa-route text-primary me-2"></i>
+                <h5 class="font-bold text-gray-900 mb-2">
+                  <i class="fas fa-route text-primary-600 mr-2"></i>
                   Choose Your Setup Method
                 </h5>
-                <p class="text-muted">
+                <p class="text-gray-600">
                   Select the best option for your needs. You can always change this later.
                 </p>
               </div>
@@ -132,12 +132,12 @@
                       </div>
 
                       <!-- Title -->
-                      <h5 class="card-title font-weight-bold mb-2">
+                      <h5 class="card-title font-bold text-gray-900 mb-2">
                         {{ tier.config.icon }} {{ tier.config.label }}
                       </h5>
 
                       <!-- Description -->
-                      <p class="card-text text-muted small mb-3">
+                      <p class="card-text text-gray-600 text-sm mb-3">
                         {{ tier.config.description }}
                       </p>
 
@@ -146,7 +146,7 @@
                         <span
                           v-for="badge in tier.badges"
                           :key="badge.text"
-                          class="badge me-1 mb-1"
+                          class="badge mr-1 mb-1"
                           :class="badge.class"
                         >
                           {{ badge.text }}
@@ -154,9 +154,9 @@
                       </div>
 
                       <!-- Pros -->
-                      <div class="text-start mb-3">
-                        <div class="small fw-bold text-success mb-2">
-                          <i class="fas fa-check-circle me-1"></i> What you get:
+                      <div class="text-left mb-3">
+                        <div class="text-sm font-bold text-green-600 mb-2">
+                          <i class="fas fa-check-circle mr-1"></i> What you get:
                         </div>
                         <ul class="tier-list">
                           <li v-for="adv in tier.config.advantages.slice(0, 3)" :key="adv">
@@ -166,9 +166,9 @@
                       </div>
 
                       <!-- Limitations (if any) -->
-                      <div v-if="tier.config.limitations && tier.config.limitations.length > 0" class="text-start">
-                        <div class="small fw-bold text-warning mb-2">
-                          <i class="fas fa-exclamation-circle me-1"></i> Limitations:
+                      <div v-if="tier.config.limitations && tier.config.limitations.length > 0" class="text-left">
+                        <div class="text-sm font-bold text-yellow-600 mb-2">
+                          <i class="fas fa-exclamation-circle mr-1"></i> Limitations:
                         </div>
                         <ul class="tier-list">
                           <li v-for="lim in tier.config.limitations.slice(0, 2)" :key="lim">
@@ -178,13 +178,13 @@
                       </div>
 
                       <!-- Learn More Link -->
-                      <div v-if="tier.config.advantages.length > 3 || (tier.config.limitations && tier.config.limitations.length > 2)" class="text-start mt-2">
+                      <div v-if="tier.config.advantages.length > 3 || (tier.config.limitations && tier.config.limitations.length > 2)" class="text-left mt-2">
                         <a
                           href="#"
-                          class="small text-primary"
+                          class="text-sm text-primary-600 hover:text-primary-700"
                           @click.prevent="showTierDetails(tier.key)"
                         >
-                          <i class="fas fa-info-circle me-1"></i> Learn more
+                          <i class="fas fa-info-circle mr-1"></i> Learn more
                         </a>
                       </div>
                     </div>
@@ -202,40 +202,40 @@
                 <table class="table table-bordered comparison-table">
                   <thead>
                     <tr>
-                      <th class="text-muted">Feature</th>
+                      <th class="text-gray-600">Feature</th>
                       <th v-for="tier in availableTiers" :key="tier.key" class="text-center">
-                        <div class="fw-bold">{{ tier.config.label }}</div>
-                        <div class="small text-muted">{{ tier.config.icon }}</div>
+                        <div class="font-bold">{{ tier.config.label }}</div>
+                        <div class="text-sm text-gray-600">{{ tier.config.icon }}</div>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="fw-bold">Setup Time</td>
+                      <td class="font-bold">Setup Time</td>
                       <td v-for="tier in availableTiers" :key="`time-${tier.key}`" class="text-center">
                         {{ tier.config.setup_time }}
                       </td>
                     </tr>
                     <tr>
-                      <td class="fw-bold">Rate Limits</td>
+                      <td class="font-bold">Rate Limits</td>
                       <td v-for="tier in availableTiers" :key="`limits-${tier.key}`" class="text-center">
                         <span v-if="tier.config.rate_limits">
-                          <i class="fas fa-exclamation-triangle text-warning"></i> Limited
+                          <i class="fas fa-exclamation-triangle text-yellow-500"></i> Limited
                         </span>
-                        <span v-else class="text-success">
+                        <span v-else class="text-green-600">
                           <i class="fas fa-infinity"></i> Unlimited
                         </span>
                       </td>
                     </tr>
                     <tr>
-                      <td class="fw-bold">Billing APIs</td>
+                      <td class="font-bold">Billing APIs</td>
                       <td v-for="tier in availableTiers" :key="`billing-${tier.key}`" class="text-center">
                         {{ tier.config.allowed_apis === 'all' ? '✅ Yes' : '❌ No' }}
                       </td>
                     </tr>
                     <tr>
-                      <td class="fw-bold">Requirements</td>
-                      <td v-for="tier in availableTiers" :key="`req-${tier.key}`" class="text-center small">
+                      <td class="font-bold">Requirements</td>
+                      <td v-for="tier in availableTiers" :key="`req-${tier.key}`" class="text-center text-sm">
                         <span v-if="!tier.config.requires || tier.config.requires.length === 0">
                           None
                         </span>
@@ -262,9 +262,9 @@
 
               <!-- Empty State -->
               <div v-if="availableTiers.length === 0" class="text-center py-5">
-                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                <h5 class="text-muted">No Setup Options Available</h5>
-                <p class="text-muted small">
+                <i class="fas fa-inbox fa-3x text-gray-400 mb-3"></i>
+                <h5 class="text-gray-600">No Setup Options Available</h5>
+                <p class="text-gray-600 text-sm">
                   Please contact your administrator to configure OAuth options for {{ providerName }}.
                 </p>
               </div>
@@ -287,9 +287,9 @@
 
               <!-- Help Text -->
               <div class="text-center mt-3">
-                <small class="text-muted">
-                  <i class="fas fa-question-circle me-1"></i>
-                  Need help choosing? <a href="#" @click.prevent="showHelpModal">See our recommendation guide</a>
+                <small class="text-gray-600">
+                  <i class="fas fa-question-circle mr-1"></i>
+                  Need help choosing? <a href="#" @click.prevent="showHelpModal" class="text-primary-600 hover:text-primary-700">See our recommendation guide</a>
                 </small>
               </div>
             </div>
@@ -301,14 +301,14 @@
 
           <!-- Error Alert -->
           <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-triangle me-2"></i>
+            <i class="fas fa-exclamation-triangle mr-2"></i>
             <strong>Error:</strong> {{ errorMessage }}
             <button type="button" class="btn-close" @click="errorMessage = null"></button>
           </div>
 
           <!-- Success Alert -->
           <div v-if="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i>
+            <i class="fas fa-check-circle mr-2"></i>
             {{ successMessage }}
             <button type="button" class="btn-close" @click="successMessage = null"></button>
           </div>
