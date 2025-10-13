@@ -802,9 +802,12 @@ onMounted(async () => {
     const config = await call('lodgeick.api.oauth_tiers.get_tier_config', {
       provider: props.provider
     })
+    console.log('[OAuth Wizard] Tier config received:', JSON.stringify(config, null, 2))
+    console.log('[OAuth Wizard] Default tier enabled:', config?.tiers?.default?.enabled)
     tierConfig.value = config
     loadProgress()
   } catch (error) {
+    console.error('[OAuth Wizard] Failed to load tier config:', error)
     toast.error(`Failed to load setup options: ${error.message || 'Please try again'}`)
   } finally {
     loading.value = false
@@ -907,8 +910,12 @@ function nextStep() {
 }
 
 function previousStep() {
-  if (currentStep.value > 1) {
+  if (currentStep.value > 0) {
     currentStep.value--
+    // If going back to step 0, reset setupMethod to show method selection
+    if (currentStep.value === 0) {
+      setupMethod.value = null
+    }
   }
 }
 

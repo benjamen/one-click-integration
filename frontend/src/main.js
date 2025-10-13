@@ -80,8 +80,8 @@ import {
 
 import "./index.css"
 import "./styles/design-tokens.css"
-import "bootstrap/dist/css/bootstrap.min.css"
-import "bootstrap"
+// Note: Bootstrap JavaScript removed - using Tailwind CSS only
+// Bootstrap CSS kept for legacy components during migration
 
 // Toast notifications
 import Toast from "vue-toastification"
