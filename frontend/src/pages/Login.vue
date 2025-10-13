@@ -32,9 +32,9 @@
                   />
                 </div>
 
-                <div v-if="error" class="alert alert-danger mb-3">
+                <BaseAlert v-if="error" variant="danger" class="mb-3">
                   {{ error }}
-                </div>
+                </BaseAlert>
 
                 <button
                   type="submit"

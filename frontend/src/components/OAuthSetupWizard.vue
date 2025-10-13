@@ -165,10 +165,10 @@
                       <hr class="my-3">
 
                       <!-- Upgrade Message (if locked) -->
-                      <div v-if="tierConfig.tiers.ai.upgrade_required" class="alert alert-warning text-sm mb-2">
+                      <BaseAlert v-if="tierConfig.tiers.ai.upgrade_required" variant="warning" hide-icon class="text-sm mb-2">
                         <i class="fas fa-star mr-1"></i>
                         {{ tierConfig.tiers.ai.upgrade_message }}
-                      </div>
+                      </BaseAlert>
 
                       <div class="text-left">
                         <div class="text-sm text-green-600 mb-2">
@@ -250,10 +250,10 @@
                 <i class="fab fa-google text-primary-600 mr-2"></i>
                 Create Google Cloud Project
               </h5>
-              <div class="alert alert-info">
+              <BaseAlert variant="info" hide-icon>
                 <i class="fas fa-info-circle mr-2"></i>
                 You'll need a Google account to create a Cloud project.
-              </div>
+              </BaseAlert>
               <ol class="setup-steps">
                 <li class="mb-3">
                   Go to <a href="https://console.cloud.google.com" target="_blank" class="text-primary-600">
@@ -291,10 +291,10 @@
                 <i class="fas fa-toggle-on text-green-600 mr-2"></i>
                 Enable Required APIs
               </h5>
-              <div class="alert alert-warning">
+              <BaseAlert variant="warning" hide-icon>
                 <i class="fas fa-exclamation-triangle mr-2"></i>
                 Make sure your new project is selected in the project dropdown!
-              </div>
+              </BaseAlert>
               <ol class="setup-steps">
                 <li class="mb-3">
                   Go to <a href="https://console.cloud.google.com/apis/library" target="_blank" class="text-primary-600">
@@ -436,10 +436,10 @@
                 </li>
                 <li class="mb-3">
                   A dialog will appear showing your credentials
-                  <div class="alert alert-warning mt-2">
+                  <BaseAlert variant="warning" hide-icon class="mt-2">
                     <i class="fas fa-exclamation-triangle mr-2"></i>
                     <strong>Important:</strong> Copy both the Client ID and Client Secret - you'll need them in the next step!
-                  </div>
+                  </BaseAlert>
                 </li>
               </ol>
             </div>
@@ -482,10 +482,10 @@
                 </template>
               </BaseInput>
 
-              <div class="alert alert-success" v-if="clientId && clientSecret">
+              <BaseAlert v-if="clientId && clientSecret" variant="success" hide-icon>
                 <i class="fas fa-check-circle mr-2"></i>
                 Credentials look good! Click "Save & Test Connection" to finish.
-              </div>
+              </BaseAlert>
             </div>
 
             <!-- Step 5: Complete -->
@@ -497,10 +497,10 @@
               <p class="text-gray-600 mb-4">
                 Your OAuth credentials have been configured successfully.
               </p>
-              <div class="alert alert-info">
+              <BaseAlert variant="info" hide-icon>
                 <i class="fas fa-lightbulb mr-2"></i>
                 You can now close this wizard and click "Connect App" to authenticate with {{ providerName }}.
-              </div>
+              </BaseAlert>
             </div>
           </div>
         </div>

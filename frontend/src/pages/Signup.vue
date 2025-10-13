@@ -43,9 +43,9 @@
                   <small class="text-gray-600">Minimum 6 characters</small>
                 </div>
 
-                <div v-if="error" class="alert alert-danger">
+                <BaseAlert v-if="error" variant="danger" class="mb-3">
                   {{ error }}
-                </div>
+                </BaseAlert>
 
                 <button
                   type="submit"

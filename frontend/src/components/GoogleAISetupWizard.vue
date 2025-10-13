@@ -44,10 +44,9 @@
               class="mb-4"
             />
 
-            <div v-if="parseError" class="alert alert-danger">
-              <i class="fas fa-exclamation-circle mr-2"></i>
+            <BaseAlert v-if="parseError" variant="danger">
               {{ parseError }}
-            </div>
+            </BaseAlert>
 
             <BaseButton
               variant="primary"
@@ -70,10 +69,10 @@
               AI Analysis Results
             </h5>
 
-            <div class="alert alert-info">
+            <BaseAlert variant="info" hide-icon>
               <i class="fas fa-robot mr-2"></i>
               <strong>AI Reasoning:</strong> {{ parsedData.reasoning }}
-            </div>
+            </BaseAlert>
 
             <h6 class="font-bold text-gray-900 mt-4 mb-3">Required Google APIs:</h6>
             <div class="list-group mb-4">
@@ -112,7 +111,7 @@
             </div>
 
             <!-- Billing Warning -->
-            <div v-if="parsedData.billing_required" class="alert alert-warning">
+            <BaseAlert v-if="parsedData.billing_required" variant="warning" hide-icon>
               <i class="fas fa-exclamation-triangle mr-2"></i>
               <strong>Billing Account Required</strong>
               <p class="mb-0 mt-2">
@@ -122,7 +121,7 @@
               <p class="mb-0 mt-2 text-sm">
                 Make sure your Google Cloud project has billing enabled before proceeding.
               </p>
-            </div>
+            </BaseAlert>
 
             <!-- Setup Method Selection -->
             <div class="card mt-4">
@@ -242,10 +241,10 @@
               Manual Setup Instructions
             </h5>
 
-            <div class="alert alert-info">
+            <BaseAlert variant="info" hide-icon>
               <i class="fas fa-info-circle mr-2"></i>
               Follow these steps in your Google Cloud Console to set up the required APIs and OAuth credentials.
-            </div>
+            </BaseAlert>
 
             <div class="card mb-3">
               <div class="card-header bg-light">
@@ -397,13 +396,13 @@
               </p>
             </div>
 
-            <div class="alert alert-success">
+            <BaseAlert variant="success" hide-icon>
               <i class="fas fa-check-circle mr-2"></i>
               <strong>{{ projectData.apis_enabled.length }} APIs Enabled:</strong>
               {{ projectData.apis_enabled.join(', ') }}
-            </div>
+            </BaseAlert>
 
-            <div v-if="projectData.apis_failed && projectData.apis_failed.length > 0" class="alert alert-warning">
+            <BaseAlert v-if="projectData.apis_failed && projectData.apis_failed.length > 0" variant="warning" hide-icon>
               <i class="fas fa-exclamation-triangle mr-2"></i>
               <strong>Some APIs failed to enable:</strong>
               <ul class="mb-0 mt-2">
@@ -411,7 +410,7 @@
                   {{ failed.api }}: {{ failed.error }}
                 </li>
               </ul>
-            </div>
+            </BaseAlert>
 
             <div class="card bg-light mt-4">
               <div class="card-body">
@@ -526,10 +525,10 @@
               Your Google Cloud integration is ready to use. Credentials have been synced to n8n.
             </p>
 
-            <div class="alert alert-success">
+            <BaseAlert variant="success" hide-icon>
               <i class="fas fa-info-circle mr-2"></i>
               You can now use these credentials in your n8n workflows and Lodgeick integrations.
-            </div>
+            </BaseAlert>
 
             <BaseButton
               variant="primary"
