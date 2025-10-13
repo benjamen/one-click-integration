@@ -1,7 +1,7 @@
 <template>
   <div
     class="modal fade"
-    :class="{ show: show, 'd-block': show }"
+    :class="{ show: show, 'block': show }"
     tabindex="-1"
     :style="{ backgroundColor: show ? 'rgba(0,0,0,0.5)' : '' }"
     @click.self="closeWizard"
@@ -10,8 +10,8 @@
       <div class="modal-content">
         <!-- Header -->
         <div class="modal-header bg-gradient-ai">
-          <h5 class="modal-title text-white font-weight-bold">
-            <i class="fas fa-robot me-2"></i>
+          <h5 class="modal-title text-white font-bold">
+            <i class="fas fa-robot mr-2"></i>
             AI-Powered Google Integration Setup
           </h5>
           <button
@@ -25,11 +25,11 @@
         <div class="modal-body p-4">
           <!-- Step 1: Intent Input -->
           <div v-if="currentStep === 'intent'" class="step">
-            <h5 class="font-weight-bold mb-3">
-              <i class="fas fa-comment-dots text-primary me-2"></i>
+            <h5 class="font-bold text-gray-900 mb-3">
+              <i class="fas fa-comment-dots text-primary-600 mr-2"></i>
               What do you want to integrate?
             </h5>
-            <p class="text-muted">
+            <p class="text-gray-600">
               Describe in plain English what Google services you want to connect.
               Our AI will figure out which APIs and permissions you need.
             </p>
@@ -45,7 +45,7 @@
             />
 
             <div v-if="parseError" class="alert alert-danger">
-              <i class="fas fa-exclamation-circle me-2"></i>
+              <i class="fas fa-exclamation-circle mr-2"></i>
               {{ parseError }}
             </div>
 
@@ -65,37 +65,37 @@
 
           <!-- Step 2: API Preview & Billing Check -->
           <div v-if="currentStep === 'preview'" class="step">
-            <h5 class="font-weight-bold mb-3">
-              <i class="fas fa-list-check text-success me-2"></i>
+            <h5 class="font-bold text-gray-900 mb-3">
+              <i class="fas fa-list-check text-green-600 mr-2"></i>
               AI Analysis Results
             </h5>
 
             <div class="alert alert-info">
-              <i class="fas fa-robot me-2"></i>
+              <i class="fas fa-robot mr-2"></i>
               <strong>AI Reasoning:</strong> {{ parsedData.reasoning }}
             </div>
 
-            <h6 class="font-weight-bold mt-4 mb-3">Required Google APIs:</h6>
+            <h6 class="font-bold text-gray-900 mt-4 mb-3">Required Google APIs:</h6>
             <div class="list-group mb-4">
               <div
                 v-for="api in parsedData.apis"
                 :key="api.name"
                 class="list-group-item"
               >
-                <div class="d-flex justify-content-between align-items-start">
+                <div class="flex justify-between items-start">
                   <div>
                     <h6 class="mb-1">
-                      <i class="fab fa-google text-primary me-2"></i>
+                      <i class="fab fa-google text-primary-600 mr-2"></i>
                       {{ api.display_name }}
                     </h6>
-                    <p class="mb-1 text-muted small">{{ api.description }}</p>
+                    <p class="mb-1 text-gray-600 text-sm">{{ api.description }}</p>
                     <div class="mt-2">
                       <span
                         v-for="scope in api.scopes"
                         :key="scope"
-                        class="badge bg-light text-dark me-1 mb-1"
+                        class="badge bg-light text-dark mr-1 mb-1"
                       >
-                        <code class="small">{{ scope }}</code>
+                        <code class="text-sm">{{ scope }}</code>
                       </span>
                     </div>
                   </div>
@@ -103,7 +103,7 @@
                     v-if="parsedData.billing_apis && parsedData.billing_apis.includes(api.name)"
                     class="badge bg-warning text-dark"
                   >
-                    <i class="fas fa-credit-card me-1"></i>
+                    <i class="fas fa-credit-card mr-1"></i>
                     Billing Required
                   </span>
                 </div>
@@ -112,13 +112,13 @@
 
             <!-- Billing Warning -->
             <div v-if="parsedData.billing_required" class="alert alert-warning">
-              <i class="fas fa-exclamation-triangle me-2"></i>
+              <i class="fas fa-exclamation-triangle mr-2"></i>
               <strong>Billing Account Required</strong>
               <p class="mb-0 mt-2">
                 The following APIs require a billing account to be linked to your Google Cloud project:
                 <strong>{{ parsedData.billing_apis.join(', ') }}</strong>
               </p>
-              <p class="mb-0 mt-2 small">
+              <p class="mb-0 mt-2 text-sm">
                 Make sure your Google Cloud project has billing enabled before proceeding.
               </p>
             </div>
@@ -126,8 +126,8 @@
             <!-- Setup Method Selection -->
             <div class="card mt-4">
               <div class="card-body">
-                <h6 class="font-weight-bold mb-3">
-                  <i class="fas fa-route text-primary me-2"></i>
+                <h6 class="font-bold text-gray-900 mb-3">
+                  <i class="fas fa-route text-primary-600 mr-2"></i>
                   Choose Your Setup Method
                 </h6>
 
@@ -144,16 +144,16 @@
                           value="auto"
                           v-model="setupMethod"
                         >
-                        <label class="form-check-label font-weight-bold" for="autoSetup">
-                          <i class="fas fa-magic text-primary me-2"></i>
+                        <label class="form-check-label font-bold" for="autoSetup">
+                          <i class="fas fa-magic text-primary-600 mr-2"></i>
                           Automated Setup (New Project)
                         </label>
                       </div>
-                      <p class="small text-muted mt-2 mb-0">
+                      <p class="text-sm text-gray-600 mt-2 mb-0">
                         Let Lodgeick create a new Google Cloud project and enable APIs for you automatically.
                       </p>
                       <div class="mt-2">
-                        <span class="badge bg-success me-1">Recommended</span>
+                        <span class="badge bg-success mr-1">Recommended</span>
                         <span class="badge bg-info">Fastest</span>
                       </div>
                     </div>
@@ -171,12 +171,12 @@
                           value="manual"
                           v-model="setupMethod"
                         >
-                        <label class="form-check-label font-weight-bold" for="manualSetup">
-                          <i class="fas fa-hand-pointer text-warning me-2"></i>
+                        <label class="form-check-label font-bold" for="manualSetup">
+                          <i class="fas fa-hand-pointer text-yellow-500 mr-2"></i>
                           Manual Setup (Existing Project)
                         </label>
                       </div>
-                      <p class="small text-muted mt-2 mb-0">
+                      <p class="text-sm text-gray-600 mt-2 mb-0">
                         I already have a Google Cloud project and want to use my existing setup.
                       </p>
                       <div class="mt-2">
@@ -209,8 +209,8 @@
 
             <!-- Project Name Input for Auto Setup -->
             <div v-if="showProjectNameInput && setupMethod === 'auto'" class="mt-3 p-3 border rounded bg-light">
-              <h6 class="font-weight-bold mb-3">
-                <i class="fas fa-folder-plus me-2"></i>
+              <h6 class="font-bold text-gray-900 mb-3">
+                <i class="fas fa-folder-plus mr-2"></i>
                 Name Your New Project
               </h6>
               <BaseInput
@@ -236,20 +236,20 @@
 
           <!-- Step 2b: Manual Setup Instructions -->
           <div v-if="currentStep === 'manual_instructions'" class="step">
-            <h5 class="font-weight-bold mb-3">
-              <i class="fas fa-list-ol text-primary me-2"></i>
+            <h5 class="font-bold text-gray-900 mb-3">
+              <i class="fas fa-list-ol text-primary-600 mr-2"></i>
               Manual Setup Instructions
             </h5>
 
             <div class="alert alert-info">
-              <i class="fas fa-info-circle me-2"></i>
+              <i class="fas fa-info-circle mr-2"></i>
               Follow these steps in your Google Cloud Console to set up the required APIs and OAuth credentials.
             </div>
 
             <div class="card mb-3">
               <div class="card-header bg-light">
-                <h6 class="mb-0 font-weight-bold">
-                  <i class="fas fa-project-diagram me-2"></i>
+                <h6 class="mb-0 font-bold text-gray-900">
+                  <i class="fas fa-project-diagram mr-2"></i>
                   Step 1: Use Existing or Create New Project
                 </h6>
               </div>
@@ -257,9 +257,9 @@
                 <ol class="mb-0">
                   <li class="mb-2">
                     Go to
-                    <a href="https://console.cloud.google.com" target="_blank" class="text-primary">
+                    <a href="https://console.cloud.google.com" target="_blank" class="text-primary-600">
                       Google Cloud Console
-                      <i class="fas fa-external-link-alt ms-1 small"></i>
+                      <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                     </a>
                   </li>
                   <li class="mb-2">Select an existing project or create a new one</li>
@@ -270,8 +270,8 @@
 
             <div class="card mb-3">
               <div class="card-header bg-light">
-                <h6 class="mb-0 font-weight-bold">
-                  <i class="fas fa-toggle-on me-2"></i>
+                <h6 class="mb-0 font-bold text-gray-900">
+                  <i class="fas fa-toggle-on mr-2"></i>
                   Step 2: Enable Required APIs
                 </h6>
               </div>
@@ -279,17 +279,17 @@
                 <ol class="mb-2">
                   <li class="mb-2">
                     Go to
-                    <a href="https://console.cloud.google.com/apis/library" target="_blank" class="text-primary">
+                    <a href="https://console.cloud.google.com/apis/library" target="_blank" class="text-primary-600">
                       APIs & Services > Library
-                      <i class="fas fa-external-link-alt ms-1 small"></i>
+                      <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                     </a>
                   </li>
                   <li class="mb-2">Enable these APIs in your project:</li>
                 </ol>
                 <div class="mt-2">
                   <div v-for="api in parsedData.apis" :key="api.name" class="mb-2">
-                    <span class="badge bg-primary me-2">{{ api.display_name }}</span>
-                    <code class="small text-muted">{{ api.name }}</code>
+                    <span class="badge bg-primary mr-2">{{ api.display_name }}</span>
+                    <code class="text-sm text-gray-600">{{ api.name }}</code>
                   </div>
                 </div>
               </div>
@@ -297,8 +297,8 @@
 
             <div class="card mb-3">
               <div class="card-header bg-light">
-                <h6 class="mb-0 font-weight-bold">
-                  <i class="fas fa-shield-alt me-2"></i>
+                <h6 class="mb-0 font-bold text-gray-900">
+                  <i class="fas fa-shield-alt mr-2"></i>
                   Step 3: Configure OAuth Consent Screen
                 </h6>
               </div>
@@ -306,9 +306,9 @@
                 <ol class="mb-0">
                   <li class="mb-2">
                     Go to
-                    <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" class="text-primary">
+                    <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" class="text-primary-600">
                       OAuth consent screen
-                      <i class="fas fa-external-link-alt ms-1 small"></i>
+                      <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                     </a>
                   </li>
                   <li class="mb-2">Choose "External" user type</li>
@@ -317,7 +317,7 @@
                 </ol>
                 <div class="mt-2 p-2 bg-light rounded">
                   <div v-for="api in parsedData.apis" :key="api.name">
-                    <code class="small d-block" v-for="scope in api.scopes" :key="scope">
+                    <code class="text-sm block" v-for="scope in api.scopes" :key="scope">
                       {{ scope }}
                     </code>
                   </div>
@@ -327,8 +327,8 @@
 
             <div class="card mb-3">
               <div class="card-header bg-light">
-                <h6 class="mb-0 font-weight-bold">
-                  <i class="fas fa-key me-2"></i>
+                <h6 class="mb-0 font-bold text-gray-900">
+                  <i class="fas fa-key mr-2"></i>
                   Step 4: Create OAuth Credentials
                 </h6>
               </div>
@@ -336,9 +336,9 @@
                 <ol class="mb-2">
                   <li class="mb-2">
                     Go to
-                    <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-primary">
+                    <a href="https://console.cloud.google.com/apis/credentials" target="_blank" class="text-primary-600">
                       Credentials
-                      <i class="fas fa-external-link-alt ms-1 small"></i>
+                      <i class="fas fa-external-link-alt ml-1 text-sm"></i>
                     </a>
                   </li>
                   <li class="mb-2">Click "Create Credentials" → "OAuth 2.0 Client ID"</li>
@@ -390,20 +390,20 @@
               >
                 <i class="fas fa-check text-white" style="font-size: 2.5rem;"></i>
               </div>
-              <h4 class="font-weight-bold">Project Created Successfully!</h4>
-              <p class="text-muted">
+              <h4 class="font-bold text-gray-900">Project Created Successfully!</h4>
+              <p class="text-gray-600">
                 Google Cloud project <strong>{{ projectData.project_id }}</strong> is ready
               </p>
             </div>
 
             <div class="alert alert-success">
-              <i class="fas fa-check-circle me-2"></i>
+              <i class="fas fa-check-circle mr-2"></i>
               <strong>{{ projectData.apis_enabled.length }} APIs Enabled:</strong>
               {{ projectData.apis_enabled.join(', ') }}
             </div>
 
             <div v-if="projectData.apis_failed && projectData.apis_failed.length > 0" class="alert alert-warning">
-              <i class="fas fa-exclamation-triangle me-2"></i>
+              <i class="fas fa-exclamation-triangle mr-2"></i>
               <strong>Some APIs failed to enable:</strong>
               <ul class="mb-0 mt-2">
                 <li v-for="failed in projectData.apis_failed" :key="failed.api">
@@ -414,24 +414,24 @@
 
             <div class="card bg-light mt-4">
               <div class="card-body">
-                <h6 class="font-weight-bold mb-3">
-                  <i class="fas fa-key text-warning me-2"></i>
+                <h6 class="font-bold text-gray-900 mb-3">
+                  <i class="fas fa-key text-yellow-500 mr-2"></i>
                   Next: Create OAuth Credentials
                 </h6>
-                <p class="small text-muted mb-3">
+                <p class="text-sm text-gray-600 mb-3">
                   You need to manually create OAuth credentials in Google Cloud Console.
                   Follow these steps:
                 </p>
-                <ol class="small">
+                <ol class="text-sm">
                   <li class="mb-2">
                     Go to
                     <a
                       :href="`https://console.cloud.google.com/apis/credentials?project=${projectData.project_id}`"
                       target="_blank"
-                      class="text-primary"
+                      class="text-primary-600"
                     >
                       Google Cloud Console - Credentials
-                      <i class="fas fa-external-link-alt ms-1"></i>
+                      <i class="fas fa-external-link-alt ml-1"></i>
                     </a>
                   </li>
                   <li class="mb-2">Configure OAuth consent screen (if not done already)</li>
@@ -444,7 +444,7 @@
                       size="sm"
                       @click="copyToClipboard(redirectUri)"
                       icon-left="fas fa-copy"
-                      class="ms-2"
+                      class="ml-2"
                     >
                     </BaseButton>
                   </li>
@@ -466,8 +466,8 @@
 
           <!-- Step 4: OAuth Credentials Input -->
           <div v-if="currentStep === 'oauth_input'" class="step">
-            <h5 class="font-weight-bold mb-3">
-              <i class="fas fa-key text-primary me-2"></i>
+            <h5 class="font-bold text-gray-900 mb-3">
+              <i class="fas fa-key text-primary-600 mr-2"></i>
               Enter OAuth Credentials
             </h5>
 
@@ -520,13 +520,13 @@
             >
               <i class="fas fa-check-double text-white" style="font-size: 3rem;"></i>
             </div>
-            <h4 class="font-weight-bold mb-3">Setup Complete!</h4>
-            <p class="text-muted mb-4">
+            <h4 class="font-bold text-gray-900 mb-3">Setup Complete!</h4>
+            <p class="text-gray-600 mb-4">
               Your Google Cloud integration is ready to use. Credentials have been synced to n8n.
             </p>
 
             <div class="alert alert-success">
-              <i class="fas fa-info-circle me-2"></i>
+              <i class="fas fa-info-circle mr-2"></i>
               You can now use these credentials in your n8n workflows and Lodgeick integrations.
             </div>
 
