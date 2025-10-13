@@ -73,7 +73,7 @@
                   <p class="card-text text-sm text-gray-600">
                     Trying out integrations, learning how they work, personal projects
                   </p>
-                  <div class="badge bg-success">Quick Start</div>
+                  <BaseBadge variant="success">Quick Start</BaseBadge>
                 </div>
               </div>
             </div>
@@ -88,7 +88,7 @@
                   <p class="card-text text-sm text-gray-600">
                     Daily workflows, team collaboration, reliable automation
                   </p>
-                  <div class="badge bg-primary">AI-Powered Setup</div>
+                  <BaseBadge variant="primary">AI-Powered Setup</BaseBadge>
                 </div>
               </div>
             </div>
@@ -103,7 +103,7 @@
                   <p class="card-text text-sm text-gray-600">
                     Processing hundreds of emails, large datasets, frequent API calls
                   </p>
-                  <div class="badge bg-primary">AI-Powered Setup</div>
+                  <BaseBadge variant="primary">AI-Powered Setup</BaseBadge>
                 </div>
               </div>
             </div>
@@ -118,7 +118,7 @@
                   <p class="card-text text-sm text-gray-600">
                     Compliance requirements, existing infrastructure, custom configs
                   </p>
-                  <div class="badge bg-secondary">Manual Setup</div>
+                  <BaseBadge variant="secondary">Manual Setup</BaseBadge>
                 </div>
               </div>
             </div>
@@ -229,6 +229,7 @@
 <script setup>
 import BaseModal from "./BaseModal.vue"
 import BaseButton from "./BaseButton.vue"
+import BaseBadge from "./base/BaseBadge.vue"
 
 defineProps({
   provider: {

@@ -90,22 +90,23 @@
                     </h6>
                     <p class="mb-1 text-gray-600 text-sm">{{ api.description }}</p>
                     <div class="mt-2">
-                      <span
+                      <BaseBadge
                         v-for="scope in api.scopes"
                         :key="scope"
-                        class="badge bg-light text-dark mr-1 mb-1"
+                        variant="light"
+                        class="mr-1 mb-1"
                       >
                         <code class="text-sm">{{ scope }}</code>
-                      </span>
+                      </BaseBadge>
                     </div>
                   </div>
-                  <span
+                  <BaseBadge
                     v-if="parsedData.billing_apis && parsedData.billing_apis.includes(api.name)"
-                    class="badge bg-warning text-dark"
+                    variant="warning"
                   >
                     <i class="fas fa-credit-card mr-1"></i>
                     Billing Required
-                  </span>
+                  </BaseBadge>
                 </div>
               </div>
             </div>
@@ -153,8 +154,8 @@
                         Let Lodgeick create a new Google Cloud project and enable APIs for you automatically.
                       </p>
                       <div class="mt-2">
-                        <span class="badge bg-success mr-1">Recommended</span>
-                        <span class="badge bg-info">Fastest</span>
+                        <BaseBadge variant="success" class="mr-1">Recommended</BaseBadge>
+                        <BaseBadge variant="info">Fastest</BaseBadge>
                       </div>
                     </div>
                   </div>
@@ -180,7 +181,7 @@
                         I already have a Google Cloud project and want to use my existing setup.
                       </p>
                       <div class="mt-2">
-                        <span class="badge bg-secondary">Advanced</span>
+                        <BaseBadge variant="secondary">Advanced</BaseBadge>
                       </div>
                     </div>
                   </div>
@@ -288,7 +289,7 @@
                 </ol>
                 <div class="mt-2">
                   <div v-for="api in parsedData.apis" :key="api.name" class="mb-2">
-                    <span class="badge bg-primary mr-2">{{ api.display_name }}</span>
+                    <BaseBadge variant="primary" class="mr-2">{{ api.display_name }}</BaseBadge>
                     <code class="text-sm text-gray-600">{{ api.name }}</code>
                   </div>
                 </div>
@@ -551,6 +552,7 @@ import { createResource } from "frappe-ui"
 import BaseButton from "./BaseButton.vue"
 import BaseInput from "./BaseInput.vue"
 import BaseTextarea from "./BaseTextarea.vue"
+import BaseBadge from "./base/BaseBadge.vue"
 
 const props = defineProps({
   show: {

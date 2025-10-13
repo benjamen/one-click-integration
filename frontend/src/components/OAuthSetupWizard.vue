@@ -107,8 +107,8 @@
                         {{ tierConfig.tiers.default.description }}
                       </p>
                       <div class="mt-3">
-                        <span class="badge bg-success mr-1">{{ tierConfig.tiers.default.setup_time }}</span>
-                        <span class="badge bg-info">No Setup</span>
+                        <BaseBadge variant="success" class="mr-1">{{ tierConfig.tiers.default.setup_time }}</BaseBadge>
+                        <BaseBadge variant="info">No Setup</BaseBadge>
                       </div>
                       <hr class="my-3">
                       <div class="text-left">
@@ -143,10 +143,10 @@
                     <div class="card-body text-center p-4 relative">
                       <!-- Upgrade Badge (if locked) -->
                       <div v-if="tierConfig.tiers.ai.upgrade_required" class="absolute top-0 right-0 p-2">
-                        <span class="badge bg-warning">
+                        <BaseBadge variant="warning">
                           <i class="fas fa-lock mr-1"></i>
                           {{ tierConfig.tiers.ai.upgrade_tier }} Only
-                        </span>
+                        </BaseBadge>
                       </div>
 
                       <div class="mb-3">
@@ -159,8 +159,8 @@
                         {{ tierConfig.tiers.ai.description }}
                       </p>
                       <div class="mt-3">
-                        <span v-if="tierConfig.tiers.ai.enabled" class="badge bg-success mr-1">Recommended</span>
-                        <span class="badge bg-primary">{{ tierConfig.tiers.ai.setup_time }}</span>
+                        <BaseBadge v-if="tierConfig.tiers.ai.enabled" variant="success" class="mr-1">Recommended</BaseBadge>
+                        <BaseBadge variant="primary">{{ tierConfig.tiers.ai.setup_time }}</BaseBadge>
                       </div>
                       <hr class="my-3">
 
@@ -214,8 +214,8 @@
                         {{ tierConfig?.tiers?.manual?.description || 'Step-by-step setup' }}
                       </p>
                       <div class="mt-3">
-                        <span class="badge bg-secondary">Advanced</span>
-                        <span class="badge bg-info">{{ tierConfig?.tiers?.manual?.setup_time || '~10 min' }}</span>
+                        <BaseBadge variant="secondary">Advanced</BaseBadge>
+                        <BaseBadge variant="info">{{ tierConfig?.tiers?.manual?.setup_time || '~10 min' }}</BaseBadge>
                       </div>
                       <hr class="my-3">
                       <div class="text-left">
@@ -305,9 +305,9 @@
                 <li class="mb-3">
                   Search for and enable these APIs:
                   <div class="mt-2">
-                    <span class="badge bg-gradient-primary mr-2 mb-2">Gmail API</span>
-                    <span class="badge bg-gradient-info mr-2 mb-2">Google Sheets API</span>
-                    <span class="badge bg-gradient-success mr-2 mb-2">Google Drive API</span>
+                    <BaseBadge variant="primary" class="mr-2 mb-2">Gmail API</BaseBadge>
+                    <BaseBadge variant="info" class="mr-2 mb-2">Google Sheets API</BaseBadge>
+                    <BaseBadge variant="success" class="mr-2 mb-2">Google Drive API</BaseBadge>
                   </div>
                 </li>
                 <li class="mb-3">
@@ -554,6 +554,7 @@ import { createResource, call } from "frappe-ui"
 import { useToast } from "@/composables/useToast"
 import BaseButton from "./BaseButton.vue"
 import BaseInput from "./BaseInput.vue"
+import BaseBadge from "./base/BaseBadge.vue"
 
 const props = defineProps({
   show: {
