@@ -1,29 +1,11 @@
 <template>
-  <div
-    class="modal fade show d-block"
-    tabindex="-1"
-    style="background-color: rgba(0,0,0,0.5);"
-    @click.self="$emit('close')"
+  <BaseModal
+    :model-value="true"
+    :title="`${tier?.icon} ${tier?.label} - Details`"
+    size="md"
+    @close="$emit('close')"
   >
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">
-            {{ tier?.icon }} {{ tier?.label }} - Details
-          </h5>
-          <button
-            type="button"
-            class="inline-flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 transition-colors"
-            @click="$emit('close')"
-            aria-label="Close"
-          >
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="modal-body">
+    <template #default>
           <div v-if="tier">
             <!-- Description -->
             <div class="mb-4">
@@ -92,23 +74,22 @@
               </p>
             </div>
           </div>
-        </div>
+    </template>
 
-        <div class="modal-footer">
-          <BaseButton
-            variant="secondary"
-            @click="$emit('close')"
-          >
-            Close
-          </BaseButton>
-        </div>
-      </div>
-    </div>
-  </div>
+    <template #footer>
+      <BaseButton
+        variant="secondary"
+        @click="$emit('close')"
+      >
+        Close
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>
 
 <script setup>
 import BaseButton from "./BaseButton.vue"
+import BaseModal from "./BaseModal.vue"
 
 defineProps({
   tier: {
@@ -123,9 +104,3 @@ defineProps({
 
 defineEmits(['close'])
 </script>
-
-<style scoped>
-.modal.show {
-  display: block;
-}
-</style>
