@@ -22,16 +22,15 @@
     <!-- Main Content -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Progress Steps (only show when user has 2+ apps) -->
-      <div v-if="connectedApps.length >= 2" class="mb-8">
-        <div class="flex items-center justify-between">
+      <div v-if="connectedApps.length >= 2" class="mb-8 overflow-x-auto">
+        <div class="flex items-center min-w-max">
           <div
             v-for="(step, index) in steps"
             :key="step.id"
             class="flex items-center"
-            :class="{ 'flex-1': index < steps.length - 1 }"
           >
             <!-- Step Circle -->
-            <div class="flex items-center">
+            <div class="flex items-center flex-shrink-0">
               <div
                 class="w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all"
                 :class="getStepClass(index)"
@@ -39,8 +38,8 @@
                 <span v-if="index < currentStepIndex">✓</span>
                 <span v-else>{{ index + 1 }}</span>
               </div>
-              <div class="ml-3">
-                <div class="text-sm font-medium" :class="index <= currentStepIndex ? 'text-gray-900' : 'text-gray-500'">
+              <div class="ml-2 hidden sm:block">
+                <div class="text-xs font-medium whitespace-nowrap" :class="index <= currentStepIndex ? 'text-gray-900' : 'text-gray-500'">
                   {{ step.title }}
                 </div>
               </div>
@@ -49,7 +48,7 @@
             <!-- Connector Line -->
             <div
               v-if="index < steps.length - 1"
-              class="flex-1 h-0.5 mx-4"
+              class="w-12 sm:w-16 h-0.5 mx-2"
               :class="index < currentStepIndex ? 'bg-blue-600' : 'bg-gray-300'"
             ></div>
           </div>
@@ -112,13 +111,12 @@
           </router-link>
         </div>
 
-        <!-- Step 1: Select Source (when 2+ apps connected) -->
-        <div v-else-if="currentStep === 'source'">
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Data Source</h2>
-          <p class="text-gray-600 mb-6">Choose which app and resource you want to pull data from</p>
+        <!-- Step 1: Select Source App -->
+        <div v-else-if="currentStep === 'source_app'">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Source App</h2>
+          <p class="text-gray-600 mb-6">Choose which app you want to pull data from</p>
 
-          <!-- Connected Apps Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
               v-for="app in connectedApps"
               :key="app.id"
@@ -140,34 +138,74 @@
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Resource Selection (if app selected) -->
-          <div v-if="workflow.sourceApp" class="mt-6 p-4 bg-gray-50 rounded-lg">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Select {{ workflow.sourceApp.resourceType || 'Resource' }}
-            </label>
-            <select
-              v-model="workflow.sourceResource"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        <!-- Step 2: Select Source Resource -->
+        <div v-else-if="currentStep === 'source_resource'">
+          <div class="mb-4 flex items-center gap-2 text-sm text-gray-600">
+            <div class="text-2xl">{{ workflow.sourceApp?.icon }}</div>
+            <span class="font-medium">{{ workflow.sourceApp?.name }}</span>
+          </div>
+
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Source {{ workflow.sourceApp?.resourceType || 'Resource' }}</h2>
+          <p class="text-gray-600 mb-6">Choose the specific {{ workflow.sourceApp?.resourceType?.toLowerCase() || 'resource' }} to pull data from</p>
+
+          <div class="space-y-3">
+            <div
+              v-for="resource in availableSourceResources"
+              :key="resource.id"
+              @click="workflow.sourceResource = resource"
+              class="border-2 rounded-lg p-4 cursor-pointer transition-all"
+              :class="workflow.sourceResource?.id === resource.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'"
             >
-              <option value="">-- Choose {{ workflow.sourceApp.resourceType || 'resource' }} --</option>
-              <option v-for="resource in availableSourceResources" :key="resource.id" :value="resource">
-                {{ resource.name }}
-              </option>
-            </select>
-            <p class="text-xs text-gray-500 mt-2">
-              We'll fetch this list from your {{ workflow.sourceApp.name }} account
-            </p>
+              <div class="flex items-center justify-between">
+                <div class="font-semibold text-gray-900">{{ resource.name }}</div>
+                <div v-if="workflow.sourceResource?.id === resource.id" class="text-blue-600">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Step 2: Select Destination -->
-        <div v-if="currentStep === 'destination'">
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Destination</h2>
+        <!-- Step 3: Select Source Fields -->
+        <div v-else-if="currentStep === 'source_fields'">
+          <div class="mb-4 flex items-center gap-2 text-sm text-gray-600">
+            <div class="text-2xl">{{ workflow.sourceApp?.icon }}</div>
+            <span class="font-medium">{{ workflow.sourceApp?.name }}</span>
+            <span>→</span>
+            <span class="font-medium">{{ workflow.sourceResource?.name }}</span>
+          </div>
+
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Source Fields</h2>
+          <p class="text-gray-600 mb-6">Choose which fields to include from {{ workflow.sourceResource?.name }}</p>
+
+          <div class="space-y-2">
+            <label
+              v-for="field in sourceFields"
+              :key="field"
+              class="flex items-center p-3 border-2 rounded-lg cursor-pointer transition-all"
+              :class="workflow.sourceFields.includes(field) ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'"
+            >
+              <input
+                type="checkbox"
+                :value="field"
+                v-model="workflow.sourceFields"
+                class="mr-3 w-4 h-4"
+              />
+              <span class="font-medium text-gray-900">{{ field }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Step 4: Select Destination App -->
+        <div v-else-if="currentStep === 'destination_app'">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Destination App</h2>
           <p class="text-gray-600 mb-6">Choose where you want to send the data</p>
 
-          <!-- Connected Apps Grid (excluding source) -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
               v-for="app in availableDestinationApps"
               :key="app.id"
@@ -189,92 +227,96 @@
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Destination Resource Selection -->
-          <div v-if="workflow.destinationApp" class="mt-6 p-4 bg-gray-50 rounded-lg">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Select {{ workflow.destinationApp.resourceType || 'Resource' }}
-            </label>
-            <select
-              v-model="workflow.destinationResource"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+        <!-- Step 5: Select Destination Resource -->
+        <div v-else-if="currentStep === 'destination_resource'">
+          <div class="mb-4 flex items-center gap-2 text-sm text-gray-600">
+            <div class="text-2xl">{{ workflow.destinationApp?.icon }}</div>
+            <span class="font-medium">{{ workflow.destinationApp?.name }}</span>
+          </div>
+
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Destination {{ workflow.destinationApp?.resourceType || 'Resource' }}</h2>
+          <p class="text-gray-600 mb-6">Choose the specific {{ workflow.destinationApp?.resourceType?.toLowerCase() || 'resource' }} to send data to</p>
+
+          <div class="space-y-3">
+            <div
+              v-for="resource in availableDestinationResources"
+              :key="resource.id"
+              @click="workflow.destinationResource = resource"
+              class="border-2 rounded-lg p-4 cursor-pointer transition-all"
+              :class="workflow.destinationResource?.id === resource.id ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'"
             >
-              <option value="">-- Choose {{ workflow.destinationApp.resourceType || 'resource' }} --</option>
-              <option v-for="resource in availableDestinationResources" :key="resource.id" :value="resource">
-                {{ resource.name }}
-              </option>
-            </select>
+              <div class="flex items-center justify-between">
+                <div class="font-semibold text-gray-900">{{ resource.name }}</div>
+                <div v-if="workflow.destinationResource?.id === resource.id" class="text-green-600">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Step 3: Map Fields -->
-        <div v-if="currentStep === 'mapping'">
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Map Fields</h2>
-          <p class="text-gray-600 mb-6">Connect fields from {{ workflow.sourceApp?.name }} to {{ workflow.destinationApp?.name }}</p>
-
-          <!-- Field Mapping Preview -->
-          <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <!-- Step 6: Map Fields -->
+        <div v-else-if="currentStep === 'field_mapping'">
+          <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <div class="flex items-center justify-between text-sm">
-              <div class="font-medium text-blue-900">
-                {{ workflow.sourceResource?.name }} ({{ workflow.sourceApp?.name }})
+              <div class="flex items-center gap-2">
+                <div class="text-2xl">{{ workflow.sourceApp?.icon }}</div>
+                <div>
+                  <div class="font-medium text-blue-900">{{ workflow.sourceResource?.name }}</div>
+                  <div class="text-xs text-blue-700">{{ workflow.sourceFields.length }} fields selected</div>
+                </div>
               </div>
               <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-              <div class="font-medium text-blue-900">
-                {{ workflow.destinationResource?.name }} ({{ workflow.destinationApp?.name }})
+              <div class="flex items-center gap-2">
+                <div class="text-2xl">{{ workflow.destinationApp?.icon }}</div>
+                <div>
+                  <div class="font-medium text-blue-900">{{ workflow.destinationResource?.name }}</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Field Mappings -->
-          <div class="space-y-4">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Map Fields</h2>
+          <p class="text-gray-600 mb-6">Connect source fields to destination fields</p>
+
+          <div class="space-y-3">
             <div
-              v-for="(mapping, index) in workflow.fieldMappings"
+              v-for="(sourceField, index) in workflow.sourceFields"
               :key="index"
-              class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg"
+              class="p-4 bg-gray-50 rounded-lg"
             >
-              <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">
-                  From {{ workflow.sourceApp?.name }}
-                </label>
-                <select
-                  v-model="mapping.sourceField"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">-- Select field --</option>
-                  <option v-for="field in sourceFields" :key="field" :value="field">
-                    {{ field }}
-                  </option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-600 mb-1">
-                  To {{ workflow.destinationApp?.name }}
-                </label>
-                <select
-                  v-model="mapping.destinationField"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
-                >
-                  <option value="">-- Select field --</option>
-                  <option v-for="field in destinationFields" :key="field" :value="field">
-                    {{ field }}
-                  </option>
-                </select>
+              <div class="grid grid-cols-2 gap-4 items-center">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">From Source</label>
+                  <div class="px-3 py-2 bg-white border border-gray-300 rounded-lg font-medium text-gray-900">
+                    {{ sourceField }}
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">To Destination</label>
+                  <select
+                    v-model="workflow.fieldMappings[index]"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500"
+                  >
+                    <option value="">-- Select destination field --</option>
+                    <option v-for="field in destinationFields" :key="field" :value="field">
+                      {{ field }}
+                    </option>
+                  </select>
+                </div>
               </div>
             </div>
-
-            <button
-              @click="addFieldMapping"
-              class="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-all"
-            >
-              + Add Field Mapping
-            </button>
           </div>
         </div>
 
-        <!-- Step 4: Configure Sync -->
-        <div v-if="currentStep === 'sync'">
+        <!-- Step 7: Configure Sync -->
+        <div v-else-if="currentStep === 'sync'">
           <h2 class="text-2xl font-bold text-gray-900 mb-2">Configure Sync</h2>
           <p class="text-gray-600 mb-6">Set up when and how often data should sync</p>
 
@@ -287,7 +329,7 @@
               <input
                 v-model="workflow.name"
                 type="text"
-                placeholder="e.g., Sync Leads from Sheets to CRM"
+                :placeholder="`Sync ${workflow.sourceResource?.name} to ${workflow.destinationResource?.name}`"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -388,13 +430,16 @@ const toast = useToast()
 
 // Steps
 const steps = ref([
-  { id: 'source', title: 'Source' },
-  { id: 'destination', title: 'Destination' },
-  { id: 'mapping', title: 'Field Mapping' },
+  { id: 'source_app', title: 'Source App' },
+  { id: 'source_resource', title: 'Source Table' },
+  { id: 'source_fields', title: 'Source Fields' },
+  { id: 'destination_app', title: 'Destination App' },
+  { id: 'destination_resource', title: 'Destination Table' },
+  { id: 'field_mapping', title: 'Field Mapping' },
   { id: 'sync', title: 'Sync Settings' }
 ])
 
-const currentStep = ref('source')
+const currentStep = ref('source_app')
 
 const currentStepIndex = computed(() => {
   return steps.value.findIndex(s => s.id === currentStep.value)
@@ -405,11 +450,11 @@ const workflow = ref({
   name: '',
   sourceApp: null,
   sourceResource: null,
+  sourceFields: [],
   destinationApp: null,
   destinationResource: null,
-  fieldMappings: [
-    { sourceField: '', destinationField: '' }
-  ],
+  destinationFields: [],
+  fieldMappings: [],
   trigger: 'manual',
   schedule: 'hourly'
 })
@@ -496,25 +541,29 @@ function getStepClass(index) {
 function selectSourceApp(app) {
   workflow.value.sourceApp = app
   workflow.value.sourceResource = null
+  workflow.value.sourceFields = []
 }
 
 function selectDestinationApp(app) {
   workflow.value.destinationApp = app
   workflow.value.destinationResource = null
-}
-
-function addFieldMapping() {
-  workflow.value.fieldMappings.push({ sourceField: '', destinationField: '' })
+  workflow.value.destinationFields = []
 }
 
 const canProceed = computed(() => {
   switch (currentStep.value) {
-    case 'source':
-      return workflow.value.sourceApp && workflow.value.sourceResource
-    case 'destination':
-      return workflow.value.destinationApp && workflow.value.destinationResource
-    case 'mapping':
-      return workflow.value.fieldMappings.some(m => m.sourceField && m.destinationField)
+    case 'source_app':
+      return workflow.value.sourceApp !== null
+    case 'source_resource':
+      return workflow.value.sourceResource !== null
+    case 'source_fields':
+      return workflow.value.sourceFields.length > 0
+    case 'destination_app':
+      return workflow.value.destinationApp !== null
+    case 'destination_resource':
+      return workflow.value.destinationResource !== null
+    case 'field_mapping':
+      return workflow.value.fieldMappings.some(m => m !== '')
     case 'sync':
       return workflow.value.name && workflow.value.trigger
     default:
