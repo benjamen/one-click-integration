@@ -804,11 +804,45 @@ onMounted(async () => {
     })
     console.log('[OAuth Wizard] Tier config received:', JSON.stringify(config, null, 2))
     console.log('[OAuth Wizard] Default tier enabled:', config?.tiers?.default?.enabled)
-    tierConfig.value = config
+    console.log('[OAuth Wizard] AI tier:', config?.tiers?.ai)
+    console.log('[OAuth Wizard] Manual tier enabled:', config?.tiers?.manual?.enabled)
+
+    // Ensure tierConfig has proper structure with fallback
+    if (config && config.tiers) {
+      tierConfig.value = config
+    } else {
+      // Fallback to minimal config if API returns unexpected format
+      console.warn('[OAuth Wizard] API returned unexpected format, using fallback')
+      tierConfig.value = {
+        provider_name: props.provider,
+        tiers: {
+          manual: {
+            enabled: true,
+            label: 'Manual Setup',
+            description: 'Configure OAuth manually',
+            setup_time: '~10 minutes'
+          }
+        }
+      }
+    }
+
     loadProgress()
   } catch (error) {
     console.error('[OAuth Wizard] Failed to load tier config:', error)
     toast.error(`Failed to load setup options: ${error.message || 'Please try again'}`)
+
+    // Provide fallback config even on error so wizard is still usable
+    tierConfig.value = {
+      provider_name: props.provider,
+      tiers: {
+        manual: {
+          enabled: true,
+          label: 'Manual Setup',
+          description: 'Configure OAuth manually',
+          setup_time: '~10 minutes'
+        }
+      }
+    }
   } finally {
     loading.value = false
   }
