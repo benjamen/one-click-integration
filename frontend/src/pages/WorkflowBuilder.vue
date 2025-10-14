@@ -150,7 +150,15 @@
           <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Source {{ workflow.sourceApp?.resourceType || 'Resource' }}</h2>
           <p class="text-gray-600 mb-6">Choose the specific {{ workflow.sourceApp?.resourceType?.toLowerCase() || 'resource' }} to pull data from</p>
 
-          <div class="space-y-3">
+          <!-- Loading state -->
+          <div v-if="loadingSourceResources" class="space-y-3">
+            <div v-for="i in 3" :key="i" class="border-2 border-gray-200 rounded-lg p-4 animate-pulse">
+              <div class="h-6 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
+
+          <!-- Resources list -->
+          <div v-else-if="availableSourceResources.length > 0" class="space-y-3">
             <div
               v-for="resource in availableSourceResources"
               :key="resource.id"
@@ -167,6 +175,11 @@
                 </div>
               </div>
             </div>
+          </div>
+
+          <!-- Empty state -->
+          <div v-else class="text-center py-8 text-gray-500">
+            No resources found for {{ workflow.sourceApp?.name }}
           </div>
         </div>
 
@@ -419,8 +432,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { call } from 'frappe-ui'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { useToast } from '@/composables/useToast'
 
@@ -473,11 +487,15 @@ const connectedApps = computed(() => {
 function getResourceType(appId) {
   const types = {
     'google_sheets': 'Spreadsheet',
+    'gmail': 'Mailbox',
     'airtable': 'Base',
     'notion': 'Database',
     'salesforce': 'Object',
     'hubspot': 'Object',
-    'xero': 'Organization'
+    'xero': 'Organization',
+    'slack': 'Channel',
+    'mailchimp': 'List',
+    'jira': 'Project'
   }
   return types[appId] || 'Resource'
 }
@@ -487,45 +505,132 @@ const availableDestinationApps = computed(() => {
   return connectedApps.value.filter(app => app.id !== workflow.value.sourceApp?.id)
 })
 
-// Mock resources (in real app, fetch from API)
-const availableSourceResources = computed(() => {
-  if (!workflow.value.sourceApp) return []
+// Available resources - fetch from API
+const availableSourceResources = ref([])
+const loadingSourceResources = ref(false)
 
-  // Mock data based on app type
-  if (workflow.value.sourceApp.id === 'google_sheets') {
-    return [
-      { id: '1', name: 'Customer Database 2025' },
-      { id: '2', name: 'Sales Leads Q1' },
-      { id: '3', name: 'Invoice Tracker' }
-    ]
+// Watch for source app changes and load resources
+watch(() => workflow.value.sourceApp, async (newApp) => {
+  if (!newApp) {
+    availableSourceResources.value = []
+    return
   }
-  return []
-})
 
-const availableDestinationResources = computed(() => {
-  if (!workflow.value.destinationApp) return []
+  loadingSourceResources.value = true
+  try {
+    const response = await call('lodgeick.api.resources.get_app_resources', {
+      app_id: newApp.id
+    })
 
-  // Mock data
-  if (workflow.value.destinationApp.id === 'salesforce') {
-    return [
-      { id: '1', name: 'Leads' },
-      { id: '2', name: 'Contacts' },
-      { id: '3', name: 'Opportunities' }
-    ]
+    if (response.success && response.resources) {
+      availableSourceResources.value = response.resources
+    } else {
+      console.error('Failed to load resources:', response.error)
+      toast.error(response.error || 'Failed to load resources')
+      availableSourceResources.value = []
+    }
+  } catch (error) {
+    console.error('Error loading resources:', error)
+    toast.error('Failed to load resources from ' + newApp.name)
+    availableSourceResources.value = []
+  } finally {
+    loadingSourceResources.value = false
   }
-  return []
-})
+}, { immediate: false })
 
-// Mock fields (in real app, fetch from selected resource)
-const sourceFields = computed(() => {
-  if (!workflow.value.sourceResource) return []
-  return ['Full Name', 'Email Address', 'Phone Number', 'Company', 'Status', 'Notes']
-})
+const availableDestinationResources = ref([])
+const loadingDestinationResources = ref(false)
 
-const destinationFields = computed(() => {
-  if (!workflow.value.destinationResource) return []
-  return ['First Name', 'Last Name', 'Email', 'Phone', 'Company Name', 'Lead Status', 'Description']
-})
+// Watch for destination app changes and load resources
+watch(() => workflow.value.destinationApp, async (newApp) => {
+  if (!newApp) {
+    availableDestinationResources.value = []
+    return
+  }
+
+  loadingDestinationResources.value = true
+  try {
+    const response = await call('lodgeick.api.resources.get_app_resources', {
+      app_id: newApp.id
+    })
+
+    if (response.success && response.resources) {
+      availableDestinationResources.value = response.resources
+    } else {
+      console.error('Failed to load resources:', response.error)
+      toast.error(response.error || 'Failed to load resources')
+      availableDestinationResources.value = []
+    }
+  } catch (error) {
+    console.error('Error loading resources:', error)
+    toast.error('Failed to load resources from ' + newApp.name)
+    availableDestinationResources.value = []
+  } finally {
+    loadingDestinationResources.value = false
+  }
+}, { immediate: false })
+
+// Available fields - fetch from API
+const sourceFields = ref([])
+const destinationFields = ref([])
+const loadingSourceFields = ref(false)
+const loadingDestinationFields = ref(false)
+
+// Watch for source resource changes and load fields
+watch(() => workflow.value.sourceResource, async (newResource) => {
+  if (!newResource || !workflow.value.sourceApp) {
+    sourceFields.value = []
+    return
+  }
+
+  loadingSourceFields.value = true
+  try {
+    const response = await call('lodgeick.api.resources.get_resource_fields', {
+      app_id: workflow.value.sourceApp.id,
+      resource_id: newResource.id
+    })
+
+    if (response.success && response.fields) {
+      sourceFields.value = response.fields.map(f => f.name)
+    } else {
+      console.error('Failed to load fields:', response.error)
+      sourceFields.value = []
+    }
+  } catch (error) {
+    console.error('Error loading fields:', error)
+    sourceFields.value = []
+  } finally {
+    loadingSourceFields.value = false
+  }
+}, { immediate: false })
+
+// Watch for destination resource changes and load fields
+watch(() => workflow.value.destinationResource, async (newResource) => {
+  if (!newResource || !workflow.value.destinationApp) {
+    destinationFields.value = []
+    return
+  }
+
+  loadingDestinationFields.value = true
+  try {
+    const response = await call('lodgeick.api.resources.get_resource_fields', {
+      app_id: workflow.value.destinationApp.id,
+      resource_id: newResource.id
+    })
+
+    if (response.success && response.fields) {
+      destinationFields.value = response.fields.map(f => f.name)
+    } else {
+      console.error('Failed to load fields:', response.error)
+      destinationFields.value = []
+    }
+  } catch (error) {
+    console.error('Error loading fields:', error)
+    destinationFields.value = []
+  } finally {
+    loadingDestinationFields.value = false
+  }
+}, { immediate: false })
 
 // Step functions
 function getStepClass(index) {
