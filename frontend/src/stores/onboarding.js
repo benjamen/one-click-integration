@@ -5,7 +5,7 @@ import { call } from 'frappe-ui'
 export const useOnboardingStore = defineStore('onboarding', () => {
   // State
   const currentStep = ref(1)
-  const totalSteps = ref(4)
+  const totalSteps = ref(2) // Simplified: 1. Select Apps, 2. Connect Apps
   const isCompleted = ref(false)
   const connectedApps = ref([])
   const selectedIntegrations = ref([])
@@ -19,14 +19,10 @@ export const useOnboardingStore = defineStore('onboarding', () => {
   const progress = computed(() => (currentStep.value / totalSteps.value) * 100)
   const canContinue = computed(() => {
     switch (currentStep.value) {
-      case 1: // Auth - handled by route guard
-        return true
-      case 2: // Connect Apps
+      case 1: // Select Apps
         return connectedApps.value.length > 0
-      case 3: // Integration
-        return selectedIntegrations.value.length > 0
-      case 4: // Configuration
-        return true // Can always skip
+      case 2: // Connect Apps (OAuth)
+        return true // Can proceed after connecting
       default:
         return false
     }

@@ -37,7 +37,7 @@
     <!-- Main Content -->
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
       <!-- Progress Bar -->
-      <StepProgressBar :current-step="onboardingStore.currentStep" :total-steps="4" />
+      <StepProgressBar :current-step="onboardingStore.currentStep" :total-steps="onboardingStore.totalSteps" />
 
       <!-- Header -->
       <div class="text-center mb-12">
@@ -197,9 +197,9 @@
         </SecondaryButton>
 
         <PrimaryButton
-          label="Continue"
+          label="Go to Dashboard"
           :disabled="!allAppsConnected"
-          @click="nextStep"
+          @click="finishOnboarding"
         >
           <template #iconRight>
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -372,9 +372,10 @@ const initiateOAuthResource = createResource({
 })
 
 // Navigation
-const nextStep = () => {
-  onboardingStore.nextStep()
-  router.push({ name: 'Configure' })
+const finishOnboarding = () => {
+  onboardingStore.completeOnboarding()
+  toast.success('Setup complete! Welcome to Lodgeick 🎉')
+  router.push({ name: 'Dashboard' })
 }
 
 const goBack = () => {
