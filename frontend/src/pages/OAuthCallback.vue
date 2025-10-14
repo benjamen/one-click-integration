@@ -21,7 +21,7 @@
                 </div>
                 <h4 class="font-bold mb-2">Successfully Connected!</h4>
                 <p class="text-gray-600 mb-4">Your account has been linked successfully.</p>
-                <p class="text-sm text-gray-600">This window will close automatically...</p>
+                <p class="text-sm text-gray-600">Redirecting you back...</p>
               </div>
 
               <!-- Error State -->
@@ -31,8 +31,8 @@
                 </div>
                 <h4 class="font-bold mb-2">Connection Failed</h4>
                 <p class="text-gray-600 mb-4">{{ error }}</p>
-                <button @click="closeWindow" class="btn btn-primary">
-                  Close Window
+                <button @click="router.push('/integrate')" class="btn btn-primary">
+                  Go Back
                 </button>
               </div>
             </div>
@@ -46,9 +46,10 @@
 <script setup>
 import { ref, onMounted } from "vue"
 import { createResource, call } from "frappe-ui"
-import { useRoute } from "vue-router"
+import { useRoute, useRouter } from "vue-router"
 
 const route = useRoute()
+const router = useRouter()
 const loading = ref(true)
 const success = ref(false)
 const error = ref(null)
@@ -66,9 +67,9 @@ const oauthCallback = createResource({
   onSuccess(data) {
     loading.value = false
     success.value = true
-    // Close window after 2 seconds
+    // Redirect back to integrate view after 2 seconds
     setTimeout(() => {
-      window.close()
+      router.push('/integrate')
     }, 2000)
   },
   onError(err) {
@@ -109,10 +110,6 @@ onMounted(async () => {
     error.value = err.message || "Failed to retrieve OAuth state"
   }
 })
-
-function closeWindow() {
-  window.close()
-}
 </script>
 
 <style scoped>
