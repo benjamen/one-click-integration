@@ -1,9 +1,9 @@
 <template>
   <div
-    class="modal fade"
-    :class="{ show: show, 'block': show }"
+    v-if="show"
+    class="modal fade show block"
     tabindex="-1"
-    :style="{ backgroundColor: show ? 'rgba(0,0,0,0.5)' : '' }"
+    style="backgroundColor: rgba(0,0,0,0.5)"
     @click.self="closeWizard"
   >
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
