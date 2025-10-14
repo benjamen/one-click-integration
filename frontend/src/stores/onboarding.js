@@ -3,17 +3,51 @@ import { ref, computed } from 'vue'
 import { call } from 'frappe-ui'
 
 export const useOnboardingStore = defineStore('onboarding', () => {
+  // Load persisted state from localStorage
+  const loadPersistedState = () => {
+    try {
+      const saved = localStorage.getItem('lodgeick_onboarding')
+      if (saved) {
+        return JSON.parse(saved)
+      }
+    } catch (e) {
+      console.error('Failed to load persisted onboarding state:', e)
+    }
+    return {
+      currentStep: 1,
+      connectedApps: [],
+      selectedIntegrations: [],
+      fieldMappings: {}
+    }
+  }
+
+  const persisted = loadPersistedState()
+
   // State
-  const currentStep = ref(1)
+  const currentStep = ref(persisted.currentStep || 1)
   const totalSteps = ref(2) // Simplified: 1. Select Apps, 2. Connect Apps
   const isCompleted = ref(false)
-  const connectedApps = ref([])
-  const selectedIntegrations = ref([])
-  const fieldMappings = ref({})
+  const connectedApps = ref(persisted.connectedApps || [])
+  const selectedIntegrations = ref(persisted.selectedIntegrations || [])
+  const fieldMappings = ref(persisted.fieldMappings || {})
   const isLoadingApps = ref(false)
 
   // Available apps for integration (loaded from backend)
   const availableApps = ref([])
+
+  // Persist state to localStorage whenever it changes
+  const persistState = () => {
+    try {
+      localStorage.setItem('lodgeick_onboarding', JSON.stringify({
+        currentStep: currentStep.value,
+        connectedApps: connectedApps.value,
+        selectedIntegrations: selectedIntegrations.value,
+        fieldMappings: fieldMappings.value
+      }))
+    } catch (e) {
+      console.error('Failed to persist onboarding state:', e)
+    }
+  }
 
   // Computed
   const progress = computed(() => (currentStep.value / totalSteps.value) * 100)
@@ -48,7 +82,8 @@ export const useOnboardingStore = defineStore('onboarding', () => {
           logo_url: app.logo_url,
           category: app.category,
           oauth_provider: app.oauth_provider,
-          isConnected: false,
+          // Restore connected state from persisted connectedApps array
+          isConnected: connectedApps.value.includes(app.app_name),
           use_cases: app.use_cases || []
         }))
       }
@@ -87,17 +122,20 @@ export const useOnboardingStore = defineStore('onboarding', () => {
 
   function setStep(step) {
     currentStep.value = step
+    persistState()
   }
 
   function nextStep() {
     if (currentStep.value < totalSteps.value) {
       currentStep.value++
+      persistState()
     }
   }
 
   function previousStep() {
     if (currentStep.value > 1) {
       currentStep.value--
+      persistState()
     }
   }
 
@@ -105,7 +143,10 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     const app = availableApps.value.find(a => a.id === appId)
     if (app && !app.isConnected) {
       app.isConnected = true
-      connectedApps.value.push(appId)
+      if (!connectedApps.value.includes(appId)) {
+        connectedApps.value.push(appId)
+      }
+      persistState()
     }
   }
 
@@ -117,6 +158,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
       selectedIntegrations.value = selectedIntegrations.value.filter(
         integration => !integration.includes(appId)
       )
+      persistState()
     }
   }
 
@@ -124,6 +166,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     const integrationKey = `${fromApp}-${toApp}`
     if (!selectedIntegrations.value.includes(integrationKey)) {
       selectedIntegrations.value.push(integrationKey)
+      persistState()
     }
   }
 
@@ -131,14 +174,18 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     selectedIntegrations.value = selectedIntegrations.value.filter(
       key => key !== integrationKey
     )
+    persistState()
   }
 
   function saveFieldMapping(integrationKey, mapping) {
     fieldMappings.value[integrationKey] = mapping
+    persistState()
   }
 
   function completeOnboarding() {
     isCompleted.value = true
+    // Clear persisted state when onboarding is complete
+    localStorage.removeItem('lodgeick_onboarding')
     // Reset for next time if needed
     currentStep.value = 1
   }
@@ -152,6 +199,8 @@ export const useOnboardingStore = defineStore('onboarding', () => {
     availableApps.value.forEach(app => {
       app.isConnected = false
     })
+    // Clear persisted state
+    localStorage.removeItem('lodgeick_onboarding')
   }
 
   return {
