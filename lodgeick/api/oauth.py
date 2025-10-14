@@ -53,6 +53,31 @@ def initiate_oauth(provider, redirect_uri=None):
 
 
 @frappe.whitelist(allow_guest=True)
+def get_provider_from_state(state):
+	"""
+	Get provider information from OAuth state token
+
+	Args:
+		state: State token
+
+	Returns:
+		dict: Provider information
+	"""
+	state_data = frappe.cache().get(f"oauth_state:{state}")
+
+	if not state_data:
+		frappe.throw(_("Invalid or expired OAuth state"))
+
+	state_data = json.loads(state_data)
+
+	return {
+		"success": True,
+		"provider": state_data.get("provider"),
+		"user": state_data.get("user")
+	}
+
+
+@frappe.whitelist(allow_guest=True)
 def oauth_callback(code, state, provider):
 	"""
 	Handle OAuth callback

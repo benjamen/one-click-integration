@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue"
-import { createResource } from "frappe-ui"
+import { createResource, call } from "frappe-ui"
 import { useRoute } from "vue-router"
 
 const route = useRoute()
@@ -77,22 +77,37 @@ const oauthCallback = createResource({
   }
 })
 
-onMounted(() => {
+onMounted(async () => {
   const code = route.query.code
   const state = route.query.state
-  const provider = route.query.provider
 
-  if (!code || !state || !provider) {
+  if (!code || !state) {
     loading.value = false
-    error.value = "Missing OAuth parameters"
+    error.value = "Missing OAuth parameters (code or state)"
     return
   }
 
-  oauthCallback.submit({
-    code,
-    state,
-    provider
-  })
+  // Get provider from state cache on backend
+  try {
+    const response = await call('lodgeick.api.oauth.get_provider_from_state', { state })
+    if (!response || !response.provider) {
+      loading.value = false
+      error.value = "Could not retrieve provider from state"
+      return
+    }
+
+    const provider = response.provider
+
+    // Now submit the OAuth callback with all parameters
+    oauthCallback.submit({
+      code,
+      state,
+      provider
+    })
+  } catch (err) {
+    loading.value = false
+    error.value = err.message || "Failed to retrieve OAuth state"
+  }
 })
 
 function closeWindow() {
