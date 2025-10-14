@@ -54,6 +54,7 @@ export const useOnboardingStore = defineStore('onboarding', () => {
       }
     } catch (error) {
       console.error('Failed to load apps:', error)
+      console.error('Error details:', error)
     } finally {
       isLoadingApps.value = false
     }

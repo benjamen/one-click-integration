@@ -23,35 +23,45 @@ def get_app_catalog(category=None):
 	if category:
 		filters["category"] = category
 
-	apps = frappe.get_all(
-		"App Catalog",
-		filters=filters,
-		fields=[
-			"name",
-			"app_name",
-			"display_name",
-			"logo_url",
-			"description",
-			"category",
-			"oauth_provider"
-		],
-		order_by="display_name asc"
-	)
-
-	# Get use cases for each app
-	for app in apps:
-		use_cases = frappe.get_all(
-			"App Use Case",
-			filters={"parent": app.name},
-			fields=["use_case_name", "description", "workflow_template_id"],
-			order_by="idx asc"
+	try:
+		apps = frappe.get_all(
+			"App Catalog",
+			filters=filters,
+			fields=[
+				"name",
+				"app_name",
+				"display_name",
+				"logo_url",
+				"description",
+				"category",
+				"oauth_provider"
+			],
+			order_by="display_name asc"
 		)
-		app["use_cases"] = use_cases
 
-	return {
-		"success": True,
-		"apps": apps
-	}
+		# Skip use cases for now to avoid query hangs
+		# for app in apps:
+		# 	use_cases = frappe.get_all(
+		# 		"App Use Case",
+		# 		filters={"parent": app.name},
+		# 		fields=["use_case_name", "description", "workflow_template_id"],
+		# 		order_by="idx asc"
+		# 	)
+		# 	app["use_cases"] = use_cases
+		for app in apps:
+			app["use_cases"] = []
+
+		return {
+			"success": True,
+			"apps": apps
+		}
+	except Exception as e:
+		frappe.log_error(f"Error in get_app_catalog: {str(e)}")
+		return {
+			"success": False,
+			"error": str(e),
+			"apps": []
+		}
 
 
 @frappe.whitelist(allow_guest=True)

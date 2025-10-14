@@ -62,6 +62,19 @@
         console.log('[Frappe Shim - index.html] frappe.ui:', window.frappe.ui)
         console.log('[Frappe Shim - index.html] frappe.ui.ScriptManager:', window.frappe.ui.ScriptManager)
 
+        // Make frappe truly global by also setting it on globalThis
+        if (typeof globalThis !== 'undefined') {
+          globalThis.frappe = window.frappe
+        }
+        // Also set as a global variable (for eval contexts)
+        var frappe = window.frappe;
+
+        // Freeze critical frappe.ui properties to prevent deletion/modification
+        if (window.frappe && window.frappe.ui) {
+          Object.freeze(window.frappe.ui.ScriptManager)
+          console.log('[Frappe Shim - index.html] Froze ScriptManager')
+        }
+
         // Monitor frappe object for complete replacement using a Proxy
         var originalFrappe = window.frappe;
         Object.defineProperty(window, 'frappe', {
@@ -166,6 +179,6 @@
     </script>
 
     <!-- Vue app module loads after frappe globals are set -->
-    <script type="module" crossorigin src="/assets/lodgeick/frontend/assets/index-7X0nI2uN.js"></script>
+    <script type="module" crossorigin src="/assets/lodgeick/frontend/assets/index-CepoxDG0.js"></script>
   </body>
 </html>
