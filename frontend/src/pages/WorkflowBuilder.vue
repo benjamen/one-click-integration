@@ -21,8 +21,8 @@
 
     <!-- Main Content -->
     <main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Progress Steps -->
-      <div class="mb-8">
+      <!-- Progress Steps (only show when user has 2+ apps) -->
+      <div v-if="connectedApps.length >= 2" class="mb-8">
         <div class="flex items-center justify-between">
           <div
             v-for="(step, index) in steps"
@@ -58,8 +58,62 @@
 
       <!-- Step Content -->
       <div class="bg-white rounded-xl shadow-lg p-8">
-        <!-- Step 1: Select Source -->
-        <div v-if="currentStep === 'source'">
+        <!-- Empty State: No Apps Connected -->
+        <div v-if="connectedApps.length === 0" class="text-center py-12">
+          <div class="mb-6">
+            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+              <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold text-gray-900 mb-2">
+            No Apps Connected Yet
+          </h3>
+          <p class="text-gray-600 mb-6 max-w-md mx-auto">
+            You need to connect at least 2 apps before you can create a workflow. Apps allow you to sync data between different platforms.
+          </p>
+
+          <router-link
+            to="/connect"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:scale-105 transition-all no-underline"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Connect Your First App
+          </router-link>
+        </div>
+
+        <!-- Empty State: Only One App Connected -->
+        <div v-else-if="connectedApps.length === 1" class="text-center py-12">
+          <div class="mb-6">
+            <div class="w-24 h-24 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
+              <div class="text-4xl">{{ connectedApps[0].icon }}</div>
+            </div>
+          </div>
+
+          <h3 class="text-xl font-bold text-gray-900 mb-2">
+            Connect One More App
+          </h3>
+          <p class="text-gray-600 mb-6 max-w-md mx-auto">
+            You have <strong>{{ connectedApps[0].name }}</strong> connected. Connect at least one more app to create data sync workflows.
+          </p>
+
+          <router-link
+            to="/connect"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:shadow-lg hover:scale-105 transition-all no-underline"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Connect Another App
+          </router-link>
+        </div>
+
+        <!-- Step 1: Select Source (when 2+ apps connected) -->
+        <div v-else-if="currentStep === 'source'">
           <h2 class="text-2xl font-bold text-gray-900 mb-2">Select Data Source</h2>
           <p class="text-gray-600 mb-6">Choose which app and resource you want to pull data from</p>
 
@@ -289,8 +343,8 @@
           </div>
         </div>
 
-        <!-- Navigation Buttons -->
-        <div class="mt-8 flex justify-between">
+        <!-- Navigation Buttons (only show when user has 2+ apps) -->
+        <div v-if="connectedApps.length >= 2" class="mt-8 flex justify-between">
           <button
             v-if="currentStepIndex > 0"
             @click="previousStep"
