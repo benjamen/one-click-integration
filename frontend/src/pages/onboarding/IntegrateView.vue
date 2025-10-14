@@ -382,12 +382,38 @@ const goBack = () => {
   router.push({ name: 'ConnectApps' })
 }
 
+// Fetch connected providers from backend
+const fetchConnectedProviders = async () => {
+  try {
+    const response = await call('lodgeick.api.oauth.get_connected_providers')
+    if (response && response.success && response.providers) {
+      // Mark apps as connected based on provider tokens
+      response.providers.forEach(providerData => {
+        const appId = onboardingStore.connectedApps.find(id => {
+          const app = getAppById(id)
+          return app && (app.oauth_provider === providerData.provider || app.id === providerData.provider)
+        })
+
+        if (appId) {
+          appTokens.value[appId] = true
+          appCredentials.value[appId] = true
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Failed to fetch connected providers:', error)
+  }
+}
+
 // Check for OAuth callback on mount
-onMounted(() => {
+onMounted(async () => {
   if (onboardingStore.connectedApps.length === 0) {
     router.push({ name: 'ConnectApps' })
     return
   }
+
+  // Fetch connected providers to check what's already connected
+  await fetchConnectedProviders()
 
   // Check if returning from OAuth callback
   const urlParams = new URLSearchParams(window.location.search)

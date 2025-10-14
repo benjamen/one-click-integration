@@ -404,6 +404,42 @@ def save_user_oauth_setup(provider, tier='manual', client_id=None, client_secret
 
 
 @frappe.whitelist()
+def get_connected_providers(user=None):
+	"""
+	Get list of connected providers for a user
+
+	Args:
+		user: User (defaults to current user)
+
+	Returns:
+		dict: List of connected providers with their details
+	"""
+	if not user:
+		user = frappe.session.user
+
+	# Get all Integration Token records for this user
+	tokens = frappe.get_all(
+		"Integration Token",
+		filters={"user": user},
+		fields=["provider", "expires_at", "creation", "modified"]
+	)
+
+	connected_providers = []
+	for token in tokens:
+		connected_providers.append({
+			"provider": token.provider,
+			"connected_at": token.creation,
+			"last_updated": token.modified,
+			"expires_at": token.expires_at
+		})
+
+	return {
+		"success": True,
+		"providers": connected_providers
+	}
+
+
+@frappe.whitelist()
 def refresh_token(provider, user=None):
 	"""
 	Refresh an expired OAuth token
