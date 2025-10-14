@@ -61,8 +61,18 @@ home_page = "lodgeick"
 
 # Website route rules
 # Map root path to Vue SPA, let Frappe handle /desk, /app, /api, /assets, /files
+# Map all SPA routes to the main lodgeick page (Vue handles routing client-side)
 website_route_rules = [
 	{"from_route": "/", "to_route": "lodgeick"},
+	{"from_route": "/oauth/callback", "to_route": "lodgeick"},
+	{"from_route": "/auth", "to_route": "lodgeick"},
+	{"from_route": "/connect", "to_route": "lodgeick"},
+	{"from_route": "/integrate", "to_route": "lodgeick"},
+	{"from_route": "/configure", "to_route": "lodgeick"},
+	{"from_route": "/dashboard", "to_route": "lodgeick"},
+	{"from_route": "/pricing", "to_route": "lodgeick"},
+	{"from_route": "/api", "to_route": "lodgeick"},
+	{"from_route": "/account/<path:name>", "to_route": "lodgeick"},
 ]
 
 # Override website context to handle SPA routing while preserving Frappe routes
