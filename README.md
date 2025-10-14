@@ -19,6 +19,7 @@ Lodgeick eliminates the complexity of connecting your favorite business tools. U
 - 🚀 **50+ App Catalog** - Popular business applications ready to connect
 - 💡 **Smart Billing Detection** - Only prompts for billing when actually required
 - ⚙️ **Integration Management** - Easy configuration and monitoring of connected apps
+- 🔀 **Visual Workflow Builder** - Step-by-step wizard for creating custom data sync workflows with field mapping
 
 ## 🏗️ Architecture
 
@@ -123,6 +124,30 @@ Lodgeick offers three flexible OAuth setup options:
 - **Providers**: All supported providers
 
 See [OAuth Tiers Guide](./OAUTH_TIERS_GUIDE.md) for detailed comparison and setup instructions.
+
+## 🔀 Visual Workflow Builder
+
+Lodgeick includes a powerful visual workflow builder for creating custom data sync workflows:
+
+### Features
+- **4-Step Wizard Interface** - Intuitive step-by-step workflow creation
+- **Source Selection** - Choose from connected apps (Google Sheets, Airtable, Notion, etc.)
+- **Destination Selection** - Pick where to send your data
+- **Field Mapping** - Visual drag-and-drop field mapping between source and destination
+- **Sync Configuration** - Set trigger type (manual, scheduled, real-time webhook) and frequency
+
+### How to Use
+1. Navigate to Dashboard and click "Create Workflow"
+2. Select your source app and resource (e.g., Google Sheets → "Sales Leads Q1")
+3. Choose your destination app and resource (e.g., Salesforce → "Leads")
+4. Map fields from source to destination (e.g., "Full Name" → "First Name")
+5. Configure sync trigger and frequency
+6. Click "Create Workflow" to activate
+
+### Access
+- **Route**: `/workflow/create`
+- **Prerequisites**: Must have 2+ apps connected
+- **Authentication**: Required
 
 ## 📖 Additional Documentation
 

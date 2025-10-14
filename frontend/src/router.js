@@ -71,6 +71,13 @@ const routes = [
 		component: () => import("@/pages/Dashboard.vue"),
 		meta: { requiresAuth: true },
 	},
+	// Workflow Builder
+	{
+		name: "WorkflowBuilder",
+		path: "/workflow/create",
+		component: () => import("@/pages/WorkflowBuilder.vue"),
+		meta: { requiresAuth: true },
+	},
 	// Account Management
 	{
 		path: "/account",

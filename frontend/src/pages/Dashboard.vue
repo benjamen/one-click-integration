@@ -122,6 +122,31 @@
         </div>
       </div>
 
+      <!-- Featured Action: Create Workflow -->
+      <div v-if="connectedAppsCount >= 2" class="mb-8">
+        <router-link
+          to="/workflow/create"
+          class="block bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl shadow-lg p-6 hover:shadow-xl transition-all group no-underline"
+        >
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-xl font-bold text-white mb-1">Create a Workflow</h3>
+                <p class="text-blue-100">Connect your apps and automate data sync with field mapping</p>
+              </div>
+            </div>
+            <svg class="w-6 h-6 text-white group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </router-link>
+      </div>
+
       <!-- Quick Actions -->
       <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
         <div class="flex items-center justify-between mb-4">
@@ -133,6 +158,21 @@
           />
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" data-tutorial="quick-actions">
+          <!-- Create Workflow (Primary Action) -->
+          <router-link
+            v-if="connectedAppsCount >= 2"
+            to="/workflow/create"
+            class="p-4 border-2 border-purple-300 bg-purple-50 rounded-lg hover:border-purple-500 hover:bg-purple-100 transition-all text-left group no-underline"
+          >
+            <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div class="font-semibold text-gray-900 mb-1">Create Workflow</div>
+            <div class="text-sm text-gray-600">Build automated data sync</div>
+          </router-link>
+
           <!-- Connect Apps -->
           <router-link
             to="/connect"
