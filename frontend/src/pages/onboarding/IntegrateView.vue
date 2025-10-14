@@ -390,15 +390,17 @@ const fetchConnectedProviders = async () => {
     if (response && response.success && response.providers) {
       // Mark apps as connected based on provider tokens
       response.providers.forEach(providerData => {
-        const appId = onboardingStore.connectedApps.find(id => {
+        // Find ALL apps that use this provider (e.g., gmail AND google_sheets both use 'google')
+        const matchingAppIds = onboardingStore.connectedApps.filter(id => {
           const app = getAppById(id)
           return app && (app.oauth_provider === providerData.provider || app.id === providerData.provider)
         })
 
-        if (appId) {
+        // Mark all matching apps as connected
+        matchingAppIds.forEach(appId => {
           appTokens.value[appId] = true
           appCredentials.value[appId] = true
-        }
+        })
       })
     }
   } catch (error) {
