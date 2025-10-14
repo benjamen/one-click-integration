@@ -95,15 +95,13 @@ const props = defineProps({
   },
   totalSteps: {
     type: Number,
-    default: 4,
+    default: 2,
   },
 })
 
 const steps = computed(() => [
-  { number: 1, label: 'Sign In' },
-  { number: 2, label: 'Connect Apps' },
-  { number: 3, label: 'Integrate' },
-  { number: 4, label: 'Configure' },
+  { number: 1, label: 'Connect Apps' },
+  { number: 2, label: 'Setup OAuth' },
 ])
 
 const progress = computed(() => {
