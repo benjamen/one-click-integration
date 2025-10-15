@@ -355,3 +355,90 @@ def n8n_webhook_callback():
 		"success": True,
 		"message": "Callback processed successfully"
 	}
+
+
+@frappe.whitelist()
+def get_dashboard_stats():
+	"""
+	Get dashboard statistics with real data from n8n
+
+	Returns:
+		dict: Dashboard statistics
+	"""
+	user = frappe.session.user
+
+	# Count connected apps
+	connected_apps = frappe.db.count('App Connection', {
+		'user': user,
+		'is_active': 1
+	})
+
+	# Count active integrations
+	active_integrations = frappe.db.count('User Integration', {
+		'user': user,
+		'status': 'Active'
+	})
+
+	# Get sync stats from n8n executions
+	synced_today = 0
+	last_sync = None
+
+	try:
+		from lodgeick.services.n8n_client import get_n8n_client
+		from frappe.utils import get_datetime, now_datetime
+
+		n8n = get_n8n_client()
+
+		# Get all user's workflow IDs
+		user_integrations = frappe.get_all(
+			'User Integration',
+			filters={'user': user, 'workflow_id': ['!=', '']},
+			fields=['workflow_id']
+		)
+
+		workflow_ids = [i.workflow_id for i in user_integrations if i.workflow_id]
+
+		if workflow_ids:
+			# Get executions from n8n
+			all_executions = []
+			for workflow_id in workflow_ids:
+				try:
+					executions = n8n.list_executions(workflow_id)
+					all_executions.extend(executions)
+				except Exception as e:
+					frappe.log_error(f"Failed to get executions for workflow {workflow_id}: {str(e)}")
+					continue
+
+			# Filter executions for today
+			today_start = get_datetime().replace(hour=0, minute=0, second=0, microsecond=0)
+
+			for execution in all_executions:
+				try:
+					started_at = execution.get('startedAt')
+					if started_at:
+						exec_time = get_datetime(started_at)
+
+						# Check if today
+						if exec_time >= today_start:
+							synced_today += 1
+
+						# Track latest sync
+						if not last_sync or exec_time > get_datetime(last_sync):
+							last_sync = started_at
+				except Exception as e:
+					continue
+
+	except Exception as e:
+		frappe.log_error(f"Failed to get n8n execution stats: {str(e)}", "Dashboard Stats Error")
+		# Return stats with zeros if n8n fails
+		pass
+
+	return {
+		"success": True,
+		"stats": {
+			"connectedApps": connected_apps,
+			"activeIntegrations": active_integrations,
+			"syncedToday": synced_today,
+			"lastSync": last_sync
+		}
+	}

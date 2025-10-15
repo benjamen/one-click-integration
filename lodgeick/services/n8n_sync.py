@@ -110,50 +110,73 @@ class N8NIntegrationSync:
 		except json.JSONDecodeError:
 			config = {}
 
-		# Get source and target app configurations
-		source_node = self._get_node_config_for_app(
+		# Determine trigger type from config
+		trigger_type = config.get("trigger", "manual")
+		schedule = config.get("schedule", "hourly")
+
+		# Build trigger node based on type
+		if trigger_type == "schedule":
+			trigger_node = self._build_schedule_trigger_node(integration_doc.name, schedule)
+		elif trigger_type == "realtime":
+			trigger_node = self._build_webhook_trigger_node(integration_doc.name)
+		else:  # manual
+			trigger_node = self._build_manual_trigger_node(integration_doc.name)
+
+		# Build source node with resource and field selection
+		source_node = self._build_source_node(
 			integration_doc.source_app,
+			config.get("sourceResource"),
+			config.get("sourceFields", []),
 			config.get("source_settings", {})
 		)
-		source_node["name"] = "Source"
-		source_node["position"] = [250, 200]
 
-		target_node = self._get_node_config_for_app(
+		# Build field mapping node if mappings exist
+		field_mappings = config.get("fieldMappings", [])
+		nodes = [trigger_node, source_node]
+		connections = {}
+
+		if field_mappings:
+			# Add Set node for field mapping
+			mapping_node = self._build_field_mapping_node(field_mappings)
+			nodes.append(mapping_node)
+
+			# Connect: Trigger -> Source -> Mapping
+			connections = {
+				trigger_node["name"]: {
+					"main": [[{"node": source_node["name"], "type": "main", "index": 0}]]
+				},
+				source_node["name"]: {
+					"main": [[{"node": mapping_node["name"], "type": "main", "index": 0}]]
+				}
+			}
+			previous_node = mapping_node["name"]
+		else:
+			# Connect: Trigger -> Source
+			connections = {
+				trigger_node["name"]: {
+					"main": [[{"node": source_node["name"], "type": "main", "index": 0}]]
+				}
+			}
+			previous_node = source_node["name"]
+
+		# Build target node with resource and field selection
+		target_node = self._build_target_node(
 			integration_doc.target_app,
+			config.get("destinationResource"),
+			config.get("destinationFields", []),
 			config.get("target_settings", {})
 		)
-		target_node["name"] = "Target"
-		target_node["position"] = [450, 200]
+		nodes.append(target_node)
 
-		# Add webhook trigger node
-		trigger_node = {
-			"parameters": {
-				"httpMethod": "POST",
-				"path": f"lodgeick-{integration_doc.name}",
-				"responseMode": "onReceived",
-				"responseData": "firstEntryJson"
-			},
-			"name": "Webhook Trigger",
-			"type": "n8n-nodes-base.webhook",
-			"typeVersion": 1,
-			"position": [50, 200],
-			"webhookId": f"lodgeick-{integration_doc.name}"
-		}
-
-		# Build connections
-		connections = {
-			"Webhook Trigger": {
-				"main": [[{"node": "Source", "type": "main", "index": 0}]]
-			},
-			"Source": {
-				"main": [[{"node": "Target", "type": "main", "index": 0}]]
-			}
+		# Connect to target
+		connections[previous_node] = {
+			"main": [[{"node": target_node["name"], "type": "main", "index": 0}]]
 		}
 
 		# Complete workflow structure
 		workflow_data = {
 			"name": f"Lodgeick: {integration_doc.flow_name}",
-			"nodes": [trigger_node, source_node, target_node],
+			"nodes": nodes,
 			"connections": connections,
 			"active": integration_doc.status == "Active",
 			"settings": {
@@ -162,6 +185,112 @@ class N8NIntegrationSync:
 		}
 
 		return workflow_data
+
+	def _build_manual_trigger_node(self, integration_name: str) -> Dict:
+		"""Build manual trigger node"""
+		return {
+			"parameters": {},
+			"name": "Manual Trigger",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [50, 300]
+		}
+
+	def _build_schedule_trigger_node(self, integration_name: str, schedule: str) -> Dict:
+		"""Build schedule trigger node"""
+		# Map schedule strings to cron expressions
+		cron_map = {
+			"15min": "*/15 * * * *",
+			"hourly": "0 * * * *",
+			"daily": "0 0 * * *",
+			"weekly": "0 0 * * 0"
+		}
+
+		return {
+			"parameters": {
+				"rule": {
+					"interval": [{
+						"cronExpression": cron_map.get(schedule, "0 * * * *")
+					}]
+				}
+			},
+			"name": "Schedule Trigger",
+			"type": "n8n-nodes-base.scheduleTrigger",
+			"typeVersion": 1,
+			"position": [50, 300]
+		}
+
+	def _build_webhook_trigger_node(self, integration_name: str) -> Dict:
+		"""Build webhook trigger node"""
+		return {
+			"parameters": {
+				"httpMethod": "POST",
+				"path": f"lodgeick-{integration_name}",
+				"responseMode": "onReceived",
+				"responseData": "firstEntryJson"
+			},
+			"name": "Webhook Trigger",
+			"type": "n8n-nodes-base.webhook",
+			"typeVersion": 1,
+			"position": [50, 300],
+			"webhookId": f"lodgeick-{integration_name}"
+		}
+
+	def _build_source_node(self, app_type: str, resource: Dict, fields: list, settings: Dict) -> Dict:
+		"""Build source node with resource and field configuration"""
+		node_config = self._get_node_config_for_app(app_type, settings)
+		node_config["name"] = f"Get from {app_type.replace('_', ' ').title()}"
+		node_config["position"] = [300, 300]
+
+		# Add resource-specific parameters
+		if resource:
+			node_config["parameters"]["resource"] = resource.get("id")
+			node_config["parameters"]["operation"] = "getAll"  # Fetch data
+
+		# Add field selection if specified
+		if fields:
+			node_config["parameters"]["fields"] = fields
+
+		return node_config
+
+	def _build_target_node(self, app_type: str, resource: Dict, fields: list, settings: Dict) -> Dict:
+		"""Build target node with resource and field configuration"""
+		node_config = self._get_node_config_for_app(app_type, settings)
+		node_config["name"] = f"Send to {app_type.replace('_', ' ').title()}"
+		node_config["position"] = [700, 300]
+
+		# Add resource-specific parameters
+		if resource:
+			node_config["parameters"]["resource"] = resource.get("id")
+			node_config["parameters"]["operation"] = "create"  # Insert data
+
+		return node_config
+
+	def _build_field_mapping_node(self, field_mappings: list) -> Dict:
+		"""Build Set node for field mapping"""
+		# Transform field mappings to n8n Set node format
+		values = []
+		for idx, mapping in enumerate(field_mappings):
+			if mapping:  # Skip empty mappings
+				values.append({
+					"name": mapping,  # Destination field
+					"value": f"={{{{$json[\"{idx}\"]}}}}",  # Source field by index
+					"type": "string"
+				})
+
+		return {
+			"parameters": {
+				"mode": "manual",
+				"duplicateItem": False,
+				"assignments": {
+					"assignments": values
+				}
+			},
+			"name": "Map Fields",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 3,
+			"position": [500, 300]
+		}
 
 	# ==================== Sync Operations ====================
 

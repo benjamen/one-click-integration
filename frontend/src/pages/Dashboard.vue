@@ -400,6 +400,7 @@
 <script setup>
 import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { call } from 'frappe-ui'
 import { useOnboardingStore } from '@/stores/onboarding'
 import { session } from '@/data/session'
 import OnboardingChecklist from '@/components/OnboardingChecklist.vue'
@@ -415,13 +416,16 @@ const activeIntegrationsCount = computed(() => onboardingStore.selectedIntegrati
 const checklistDismissed = ref(false)
 const checklistItems = ref([])
 
-// Load checklist dismissal state from localStorage
-onMounted(() => {
+// Load checklist dismissal state and fetch stats
+onMounted(async () => {
   const dismissed = localStorage.getItem('onboarding_checklist_dismissed')
   if (dismissed === 'true') {
     checklistDismissed.value = true
   }
   updateChecklistItems()
+
+  // Fetch dashboard stats
+  await fetchDashboardStats()
 })
 
 // Update checklist items based on current state
@@ -526,16 +530,51 @@ function dismissChecklist() {
   localStorage.setItem('onboarding_checklist_dismissed', 'true')
 }
 
-// Real data - no fake random numbers
-const dataSyncedCount = computed(() => {
-  // TODO: Replace with real API call to get actual sync count
-  return 0
+// Real dashboard stats from API
+const dashboardStats = ref({
+  connectedApps: 0,
+  activeIntegrations: 0,
+  syncedToday: 0,
+  lastSync: null,
+  loading: true
 })
 
+async function fetchDashboardStats() {
+  try {
+    const response = await call('lodgeick.api.integrations.get_dashboard_stats')
+    if (response && response.success) {
+      dashboardStats.value = {
+        ...response.stats,
+        loading: false
+      }
+    }
+  } catch (error) {
+    console.error('Failed to fetch dashboard stats:', error)
+    dashboardStats.value.loading = false
+  }
+}
+
+const dataSyncedCount = computed(() => dashboardStats.value.syncedToday)
+
 const lastSyncTime = computed(() => {
-  if (connectedAppsCount.value === 0) return 'Never'
-  // TODO: Replace with real last sync timestamp from API
-  return 'Never'
+  if (!dashboardStats.value.lastSync) return 'Never'
+  try {
+    // Format relative time
+    const syncDate = new Date(dashboardStats.value.lastSync)
+    const now = new Date()
+    const diffMs = now - syncDate
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMs / 3600000)
+    const diffDays = Math.floor(diffMs / 86400000)
+
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins} min${diffMins > 1 ? 's' : ''} ago`
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    return syncDate.toLocaleDateString()
+  } catch (e) {
+    return 'Never'
+  }
 })
 
 const userName = computed(() => {

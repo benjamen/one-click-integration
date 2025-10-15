@@ -688,11 +688,47 @@ function previousStep() {
   }
 }
 
-function createWorkflow() {
-  // TODO: Save workflow to backend via API
-  console.log('Creating workflow:', workflow.value)
+async function createWorkflow() {
+  if (!canProceed.value) {
+    toast.error('Please complete all workflow steps')
+    return
+  }
 
-  toast.success('Workflow created successfully! 🎉')
-  router.push({ name: 'Dashboard' })
+  try {
+    // Prepare config object for n8n integration
+    const config = {
+      sourceResource: workflow.value.sourceResource,
+      sourceFields: workflow.value.sourceFields,
+      destinationResource: workflow.value.destinationResource,
+      destinationFields: workflow.value.destinationFields,
+      fieldMappings: workflow.value.fieldMappings,
+      trigger: workflow.value.trigger,
+      schedule: workflow.value.schedule
+    }
+
+    // Call backend to create integration (will auto-sync to n8n)
+    const response = await call('lodgeick.api.n8n.create_integration', {
+      flow_name: workflow.value.name,
+      source_app: workflow.value.sourceApp.id,
+      target_app: workflow.value.destinationApp.id,
+      config: JSON.stringify(config)
+    })
+
+    if (response.success) {
+      toast.success(`Workflow "${workflow.value.name}" created and synced to n8n! 🎉`)
+
+      // Show workflow ID for reference
+      if (response.workflow_id) {
+        console.log('n8n Workflow ID:', response.workflow_id)
+      }
+
+      router.push({ name: 'Dashboard' })
+    } else {
+      toast.error(response.error || 'Failed to create workflow')
+    }
+  } catch (error) {
+    console.error('Error creating workflow:', error)
+    toast.error('Failed to create workflow. Please try again.')
+  }
 }
 </script>
