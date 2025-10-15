@@ -367,11 +367,12 @@ def get_dashboard_stats():
 	"""
 	user = frappe.session.user
 
-	# Count connected apps
-	connected_apps = frappe.db.count('App Connection', {
-		'user': user,
-		'is_active': 1
-	})
+	# Count connected apps (unique providers from Integration Token)
+	connected_apps = frappe.db.sql("""
+		SELECT COUNT(DISTINCT provider)
+		FROM `tabIntegration Token`
+		WHERE user = %s
+	""", (user,))[0][0] or 0
 
 	# Count active integrations
 	active_integrations = frappe.db.count('User Integration', {

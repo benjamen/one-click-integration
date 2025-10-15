@@ -21,29 +21,26 @@ def get_app_resources(app_id):
 	"""
 	user = frappe.session.user
 
-	# Check if user has this app connected with n8n credential
-	connection = frappe.db.get_value(
-		"App Connection",
+	# Check if user has this app connected (has Integration Token)
+	token = frappe.db.get_value(
+		"Integration Token",
 		{
 			"user": user,
-			"app_id": app_id,
-			"is_active": 1
+			"provider": app_id
 		},
-		["name", "n8n_credential_id"],
+		["name", "provider"],
 		as_dict=True
 	)
 
-	if not connection:
+	if not token:
 		return {
 			"success": False,
 			"error": f"App '{app_id}' is not connected. Please connect it from the integrations page."
 		}
 
-	if not connection.get("n8n_credential_id"):
-		return {
-			"success": False,
-			"error": f"App '{app_id}' credential not synced to n8n yet. Please try again."
-		}
+	# For now, assume n8n credentials are synced
+	# In production, you'd store n8n_credential_id in Integration Token
+	n8n_credential_id = None  # Will be populated by n8n sync service
 
 	try:
 		# Get n8n node configuration for this app
@@ -60,10 +57,21 @@ def get_app_resources(app_id):
 
 		# Use n8n dynamic parameter loading
 		n8n = get_n8n_client()
+
+		# Note: n8n_credential_id would come from Integration Token in production
+		# For now, fallback to hardcoded resources
+		if not n8n_credential_id:
+			resources = get_fallback_resources(app_id)
+			return {
+				"success": True,
+				"app_id": app_id,
+				"resources": resources
+			}
+
 		options = n8n.get_node_parameter_options(
 			node_type=node_config["node_type"],
 			method_name=node_config["resource_method"],
-			credential_id=connection.n8n_credential_id
+			credential_id=n8n_credential_id
 		)
 
 		# Transform n8n options to our format
@@ -99,19 +107,18 @@ def get_resource_fields(app_id, resource_id):
 	"""
 	user = frappe.session.user
 
-	# Check if user has this app connected
-	connection = frappe.db.get_value(
-		"App Connection",
+	# Check if user has this app connected (has Integration Token)
+	token = frappe.db.get_value(
+		"Integration Token",
 		{
 			"user": user,
-			"app_id": app_id,
-			"is_active": 1
+			"provider": app_id
 		},
-		["name", "n8n_credential_id"],
+		["name", "provider"],
 		as_dict=True
 	)
 
-	if not connection:
+	if not token:
 		return {
 			"success": False,
 			"error": f"App '{app_id}' is not connected for this user"

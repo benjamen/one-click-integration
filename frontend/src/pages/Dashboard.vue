@@ -89,14 +89,14 @@
         </router-link>
 
         <router-link
-          to="/configure"
+          to="/workflow/create"
           class="bg-white rounded-xl shadow-sm p-6 hover:shadow-lg transition-all cursor-pointer no-underline"
         >
           <div class="flex items-center justify-between">
             <div>
               <p class="text-sm font-medium text-gray-600 mb-1">Active Integrations</p>
               <p class="text-3xl font-bold text-gray-900">{{ activeIntegrationsCount }}</p>
-              <p class="text-xs text-green-600 mt-2 font-medium">Configure fields →</p>
+              <p class="text-xs text-green-600 mt-2 font-medium">Create workflow →</p>
             </div>
             <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
               <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,9 +202,9 @@
             <div class="text-sm text-gray-600">Configure credentials</div>
           </router-link>
 
-          <!-- Configure Fields -->
+          <!-- View Workflows -->
           <router-link
-            to="/configure"
+            to="/account/integrations"
             class="p-4 border-2 border-gray-200 rounded-lg hover:border-purple-500 hover:bg-purple-50 transition-all text-left group no-underline"
           >
             <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
@@ -212,8 +212,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
             </div>
-            <div class="font-semibold text-gray-900 mb-1">Field Mapping</div>
-            <div class="text-sm text-gray-600">Map data fields</div>
+            <div class="font-semibold text-gray-900 mb-1">View Workflows</div>
+            <div class="text-sm text-gray-600">Manage integrations</div>
           </router-link>
 
           <!-- Account Settings -->
@@ -457,27 +457,15 @@ function updateChecklistItems() {
     },
     {
       id: 'create_integration',
-      title: 'Create your first integration',
+      title: 'Create your first workflow',
       description: 'Connect two apps to start automating your workflows',
       completed: activeIntegrationsCount.value > 0,
       completedAt: activeIntegrationsCount.value > 0 ? Date.now() : null,
-      actionLabel: 'Create Integration',
-      actionRoute: '/configure',
-      estimatedTime: '3 min',
+      actionLabel: 'Create Workflow',
+      actionRoute: '/workflow/create',
+      estimatedTime: '5 min',
       isActive: connectedAppsCount.value > 0 && activeIntegrationsCount.value === 0,
       isOptional: false
-    },
-    {
-      id: 'configure_fields',
-      title: 'Map your data fields',
-      description: 'Customize how data flows between your apps',
-      completed: hasFieldMappings.value,
-      completedAt: hasFieldMappings.value ? Date.now() : null,
-      actionLabel: 'Configure Fields',
-      actionRoute: '/configure',
-      estimatedTime: '3 min',
-      isActive: activeIntegrationsCount.value > 0 && !hasFieldMappings.value,
-      isOptional: true
     },
     {
       id: 'upgrade_plan',
