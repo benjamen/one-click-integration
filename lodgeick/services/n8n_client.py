@@ -17,15 +17,20 @@ class N8NClient:
 		"""Initialize n8n client with configuration from site config"""
 		self.base_url = frappe.conf.get("n8n_base_url", "http://localhost:5678")
 		self.api_key = frappe.conf.get("n8n_api_key")
+		self.enabled = bool(self.api_key)
 
 		if not self.api_key:
-			frappe.log_error("n8n API key not configured in site config", "N8N Client Error")
+			frappe.logger().warning("n8n API key not configured - n8n integration disabled")
 
 		self.headers = {
 			"X-N8N-API-KEY": self.api_key,
 			"Content-Type": "application/json",
 			"Accept": "application/json"
 		}
+
+	def is_enabled(self) -> bool:
+		"""Check if n8n integration is enabled"""
+		return self.enabled
 
 	def _make_request(self, method: str, endpoint: str, data: Optional[Dict] = None) -> Dict:
 		"""
@@ -137,9 +142,8 @@ class N8NClient:
 		Returns:
 			Updated workflow data
 		"""
-		workflow = self.get_workflow(workflow_id)
-		workflow["active"] = True
-		return self.update_workflow(workflow_id, workflow)
+		# Only send the active field to avoid "additional properties" error
+		return self.update_workflow(workflow_id, {"active": True})
 
 	def deactivate_workflow(self, workflow_id: str) -> Dict:
 		"""
@@ -151,9 +155,8 @@ class N8NClient:
 		Returns:
 			Updated workflow data
 		"""
-		workflow = self.get_workflow(workflow_id)
-		workflow["active"] = False
-		return self.update_workflow(workflow_id, workflow)
+		# Only send the active field to avoid "additional properties" error
+		return self.update_workflow(workflow_id, {"active": False})
 
 	def list_workflows(self) -> List[Dict]:
 		"""

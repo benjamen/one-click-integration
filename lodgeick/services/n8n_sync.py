@@ -302,11 +302,20 @@ class N8NIntegrationSync:
 			integration_doc: Frappe User Integration document
 
 		Returns:
-			n8n workflow ID
+			n8n workflow ID (or None if n8n not available)
 
 		Raises:
 			Exception: If workflow creation fails
 		"""
+		# Check if n8n is enabled
+		if not self.client.is_enabled():
+			frappe.logger().info(f"n8n integration disabled - workflow {integration_doc.flow_name} created in Lodgeick only")
+			integration_doc.status = "Paused"
+			integration_doc.error_message = "n8n not configured - workflow saved locally only"
+			integration_doc.save(ignore_permissions=True)
+			frappe.db.commit()
+			return None
+
 		try:
 			# Build workflow configuration
 			workflow_data = self._build_workflow_json(integration_doc)
@@ -329,20 +338,36 @@ class N8NIntegrationSync:
 
 			# Activate if needed
 			if should_activate:
-				self.client.activate_workflow(workflow_id)
+				try:
+					self.client.activate_workflow(workflow_id)
+				except Exception as activate_error:
+					# If activation fails, log but don't fail the whole creation
+					frappe.logger().warning(f"Created workflow {workflow_id} but failed to activate: {str(activate_error)}")
 
 			frappe.logger().info(f"Created n8n workflow {workflow_id} for integration {integration_doc.name}")
 
 			return workflow_id
 
 		except Exception as e:
-			error_msg = f"Failed to create n8n workflow: {str(e)}"
-			frappe.log_error(error_msg, "N8N Sync Error")
-			integration_doc.status = "Error"
-			integration_doc.error_message = error_msg
+			# Truncate error message to avoid CharacterLengthExceededError
+			error_msg = str(e)[:500] if len(str(e)) > 500 else str(e)
+
+			frappe.logger().error(f"Failed to create n8n workflow for {integration_doc.name}: {error_msg}")
+
+			# Try to log error without failing
+			try:
+				frappe.log_error(f"Failed to create n8n workflow: {error_msg}", "N8N Sync Error")
+			except:
+				pass  # Ignore if error logging fails
+
+			# Mark integration but don't fail - allow it to be created without n8n
+			integration_doc.status = "Paused"
+			integration_doc.error_message = f"n8n sync failed: {error_msg}"
 			integration_doc.save(ignore_permissions=True)
 			frappe.db.commit()
-			raise
+
+			# Don't raise - allow integration to be created even if n8n fails
+			return None
 
 	def sync_integration_update(self, integration_doc: Any) -> bool:
 		"""
