@@ -270,6 +270,43 @@ class N8NClient:
 		response = self._make_request("GET", endpoint)
 		return response.get("data", [])
 
+	# ==================== Node Resource Discovery ====================
+
+	def get_node_types(self) -> List[Dict]:
+		"""
+		Get available node types in n8n
+
+		Returns:
+			List of node type definitions
+		"""
+		return self._make_request("GET", "/node-types")
+
+	def get_node_parameter_options(self, node_type: str, method_name: str, credential_id: str, current_node_parameters: Optional[Dict] = None) -> List[Dict]:
+		"""
+		Get dynamic parameter options for a node (e.g., Gmail mailboxes, Google Sheets spreadsheets)
+		This uses n8n's resource locator functionality
+
+		Args:
+			node_type: n8n node type (e.g., 'n8n-nodes-base.gmail')
+			method_name: Parameter method name to call (e.g., 'getLabels')
+			credential_id: n8n credential ID to use
+			current_node_parameters: Current node parameters for context
+
+		Returns:
+			List of available options
+		"""
+		payload = {
+			"nodeTypeAndVersion": {"name": node_type, "version": 1},
+			"path": method_name,
+			"methodName": method_name,
+			"credentials": {"id": credential_id},
+			"currentNodeParameters": current_node_parameters or {}
+		}
+
+		# n8n's dynamic node parameter loading endpoint
+		response = self._make_request("POST", "/dynamic-node-parameters/options", payload)
+		return response.get("data", [])
+
 
 def get_n8n_client() -> N8NClient:
 	"""

@@ -37,12 +37,6 @@ const routes = [
 		component: () => import("@/pages/onboarding/IntegrateView.vue"),
 		meta: { requiresAuth: true, isOnboarding: true, step: 3 },
 	},
-	{
-		name: "Configure",
-		path: "/configure",
-		component: () => import("@/pages/onboarding/ConfigureFieldsView.vue"),
-		meta: { requiresAuth: true, isOnboarding: true, step: 4 },
-	},
 	// Legacy Auth Routes (kept for compatibility)
 	{
 		name: "Login",

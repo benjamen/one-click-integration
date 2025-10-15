@@ -394,14 +394,6 @@
       </div>
     </main>
 
-    <!-- Interactive Tutorial -->
-    <TutorialOverlay
-      v-model="showTutorial"
-      :steps="tutorialSteps"
-      storage-key="dashboard_tutorial_completed"
-      @complete="onTutorialComplete"
-      @skip="onTutorialSkip"
-    />
   </div>
 </template>
 
@@ -412,41 +404,9 @@ import { useOnboardingStore } from '@/stores/onboarding'
 import { session } from '@/data/session'
 import OnboardingChecklist from '@/components/OnboardingChecklist.vue'
 import HelpTooltip from '@/components/HelpTooltip.vue'
-import TutorialOverlay from '@/components/TutorialOverlay.vue'
 
 const router = useRouter()
 const onboardingStore = useOnboardingStore()
-
-// Tutorial state
-const showTutorial = ref(false)
-const tutorialSteps = ref([
-  {
-    target: '.onboarding-checklist, [data-tutorial="stats"]',
-    title: 'Welcome to your Dashboard!',
-    description: 'This is your command center. Here you can see your connected apps, active integrations, and get started with new connections.',
-    position: 'bottom',
-    actionHint: 'Follow these steps to get the most out of Lodgeick'
-  },
-  {
-    target: '[data-tutorial="stats"]',
-    title: 'Track Your Progress',
-    description: 'These stats show how many apps you have connected and how many integrations are running. Click on any stat card to view more details.',
-    position: 'bottom'
-  },
-  {
-    target: '[data-tutorial="quick-actions"]',
-    title: 'Quick Actions',
-    description: 'Use these shortcuts to quickly access common tasks like connecting apps, setting up OAuth, or configuring field mappings.',
-    position: 'top'
-  },
-  {
-    target: '[data-tutorial="connect-app"]',
-    title: 'Connect Your First App',
-    description: 'Start by connecting an app from our catalog. We support popular services like Slack, Google Sheets, Salesforce, and more!',
-    position: 'right',
-    actionHint: 'Click "Connect Apps" to browse our catalog'
-  }
-])
 
 const connectedAppsCount = computed(() => onboardingStore.connectedApps.length)
 const activeIntegrationsCount = computed(() => onboardingStore.selectedIntegrations.length)
@@ -462,28 +422,7 @@ onMounted(() => {
     checklistDismissed.value = true
   }
   updateChecklistItems()
-
-  // Show tutorial for first-time users
-  const tutorialCompleted = localStorage.getItem('dashboard_tutorial_completed')
-  const isFirstVisit = connectedAppsCount.value === 0
-  if (tutorialCompleted !== 'true' && isFirstVisit) {
-    // Delay tutorial start to let page render
-    setTimeout(() => {
-      showTutorial.value = true
-    }, 1000)
-  }
 })
-
-// Tutorial handlers
-function onTutorialComplete() {
-  // Tutorial completed, user is ready to explore
-  console.log('Tutorial completed')
-}
-
-function onTutorialSkip() {
-  // User skipped tutorial
-  console.log('Tutorial skipped')
-}
 
 // Update checklist items based on current state
 function updateChecklistItems() {
