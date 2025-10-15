@@ -407,7 +407,12 @@ def get_dashboard_stats():
 					executions = n8n.list_executions(workflow_id)
 					all_executions.extend(executions)
 				except Exception as e:
-					frappe.log_error(f"Failed to get executions for workflow {workflow_id}: {str(e)}")
+					# Truncate error to avoid CharacterLengthExceededError
+					error_msg = str(e)[:200] if len(str(e)) > 200 else str(e)
+					try:
+						frappe.log_error(f"Failed to get executions for workflow {workflow_id}: {error_msg}")
+					except:
+						pass  # Ignore if error logging fails
 					continue
 
 			# Filter executions for today
@@ -430,7 +435,12 @@ def get_dashboard_stats():
 					continue
 
 	except Exception as e:
-		frappe.log_error(f"Failed to get n8n execution stats: {str(e)}", "Dashboard Stats Error")
+		# Truncate error to avoid CharacterLengthExceededError
+		error_msg = str(e)[:200] if len(str(e)) > 200 else str(e)
+		try:
+			frappe.log_error(f"Failed to get n8n execution stats: {error_msg}", "Dashboard Stats Error")
+		except:
+			pass  # Ignore if error logging fails
 		# Return stats with zeros if n8n fails
 		pass
 

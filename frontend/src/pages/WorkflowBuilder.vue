@@ -420,10 +420,15 @@
           <button
             v-else
             @click="createWorkflow"
-            :disabled="!canProceed"
-            class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all"
+            :disabled="!canProceed || creatingWorkflow"
+            class="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center gap-2"
           >
-            ✓ Create Workflow
+            <svg v-if="creatingWorkflow" class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span v-if="creatingWorkflow">Creating...</span>
+            <span v-else>✓ Create Workflow</span>
           </button>
         </div>
       </div>
@@ -688,11 +693,15 @@ function previousStep() {
   }
 }
 
+const creatingWorkflow = ref(false)
+
 async function createWorkflow() {
   if (!canProceed.value) {
     toast.error('Please complete all workflow steps')
     return
   }
+
+  creatingWorkflow.value = true
 
   try {
     // Prepare config object for n8n integration
@@ -706,6 +715,9 @@ async function createWorkflow() {
       schedule: workflow.value.schedule
     }
 
+    // Show loading toast
+    toast.info('Creating workflow... This may take a moment.')
+
     // Call backend to create integration (will auto-sync to n8n)
     const response = await call('lodgeick.api.n8n.create_integration', {
       flow_name: workflow.value.name,
@@ -715,7 +727,7 @@ async function createWorkflow() {
     })
 
     if (response.success) {
-      toast.success(`Workflow "${workflow.value.name}" created and synced to n8n! 🎉`)
+      toast.success(`Workflow "${workflow.value.name}" created successfully! 🎉`)
 
       // Show workflow ID for reference
       if (response.workflow_id) {
@@ -729,6 +741,8 @@ async function createWorkflow() {
   } catch (error) {
     console.error('Error creating workflow:', error)
     toast.error('Failed to create workflow. Please try again.')
+  } finally {
+    creatingWorkflow.value = false
   }
 }
 </script>
