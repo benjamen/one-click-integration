@@ -140,7 +140,59 @@
           </div>
         </div>
 
-        <!-- Step 2: Select Source Resource -->
+        <!-- Step 2: Select Integration Template -->
+        <div v-else-if="currentStep === 'source_template'">
+          <div class="mb-4 flex items-center gap-2 text-sm text-gray-600">
+            <div class="text-2xl">{{ workflow.sourceApp?.icon }}</div>
+            <span class="font-medium">{{ workflow.sourceApp?.name }}</span>
+          </div>
+
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">Choose Integration Type</h2>
+          <p class="text-gray-600 mb-6">Select a pre-built template or create a custom integration</p>
+
+          <!-- Loading state -->
+          <div v-if="loadingSourceTemplates" class="space-y-3">
+            <div v-for="i in 2" :key="i" class="border-2 border-gray-200 rounded-lg p-4 animate-pulse">
+              <div class="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div class="h-4 bg-gray-200 rounded w-full"></div>
+            </div>
+          </div>
+
+          <!-- Templates list -->
+          <div v-else-if="availableSourceTemplates.length > 0" class="space-y-3">
+            <div
+              v-for="template in availableSourceTemplates"
+              :key="template.id"
+              @click="workflow.sourceTemplate = template"
+              class="border-2 rounded-lg p-4 cursor-pointer transition-all"
+              :class="workflow.sourceTemplate?.id === template.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'"
+            >
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <div class="font-semibold text-gray-900 mb-1">{{ template.name }}</div>
+                  <div class="text-sm text-gray-600">{{ template.description }}</div>
+                  <div v-if="template.triggers && template.triggers.length" class="mt-2 flex flex-wrap gap-2">
+                    <span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                      {{ template.triggers.join(', ') }}
+                    </span>
+                  </div>
+                </div>
+                <div v-if="workflow.sourceTemplate?.id === template.id" class="text-blue-600 ml-3">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div v-else class="text-center py-8 text-gray-500">
+            No templates found for {{ workflow.sourceApp?.name }}
+          </div>
+        </div>
+
+        <!-- Step 3: Select Source Resource -->
         <div v-else-if="currentStep === 'source_resource'">
           <div class="mb-4 flex items-center gap-2 text-sm text-gray-600">
             <div class="text-2xl">{{ workflow.sourceApp?.icon }}</div>
@@ -450,10 +502,11 @@ const toast = useToast()
 // Steps
 const steps = ref([
   { id: 'source_app', title: 'Source App' },
-  { id: 'source_resource', title: 'Source Table' },
+  { id: 'source_template', title: 'Integration Type' },
+  { id: 'source_resource', title: 'Source Resource' },
   { id: 'source_fields', title: 'Source Fields' },
   { id: 'destination_app', title: 'Destination App' },
-  { id: 'destination_resource', title: 'Destination Table' },
+  { id: 'destination_resource', title: 'Destination Resource' },
   { id: 'field_mapping', title: 'Field Mapping' },
   { id: 'sync', title: 'Sync Settings' }
 ])
@@ -468,6 +521,7 @@ const currentStepIndex = computed(() => {
 const workflow = ref({
   name: '',
   sourceApp: null,
+  sourceTemplate: null,
   sourceResource: null,
   sourceFields: [],
   destinationApp: null,
@@ -509,6 +563,39 @@ function getResourceType(appId) {
 const availableDestinationApps = computed(() => {
   return connectedApps.value.filter(app => app.id !== workflow.value.sourceApp?.id)
 })
+
+// Available templates - fetch from API
+const availableSourceTemplates = ref([])
+const loadingSourceTemplates = ref(false)
+
+// Watch for source app changes and load templates
+watch(() => workflow.value.sourceApp, async (newApp) => {
+  if (!newApp) {
+    availableSourceTemplates.value = []
+    return
+  }
+
+  loadingSourceTemplates.value = true
+  try {
+    const response = await call('lodgeick.api.resources.get_app_templates', {
+      app_id: newApp.id
+    })
+
+    if (response.success && response.templates) {
+      availableSourceTemplates.value = response.templates
+    } else {
+      console.error('Failed to load templates:', response.error)
+      toast.error(response.error || 'Failed to load templates')
+      availableSourceTemplates.value = []
+    }
+  } catch (error) {
+    console.error('Error loading templates:', error)
+    toast.error('Failed to load templates from ' + newApp.name)
+    availableSourceTemplates.value = []
+  } finally {
+    loadingSourceTemplates.value = false
+  }
+}, { immediate: false })
 
 // Available resources - fetch from API
 const availableSourceResources = ref([])
@@ -650,6 +737,7 @@ function getStepClass(index) {
 
 function selectSourceApp(app) {
   workflow.value.sourceApp = app
+  workflow.value.sourceTemplate = null
   workflow.value.sourceResource = null
   workflow.value.sourceFields = []
 }
@@ -664,6 +752,8 @@ const canProceed = computed(() => {
   switch (currentStep.value) {
     case 'source_app':
       return workflow.value.sourceApp !== null
+    case 'source_template':
+      return workflow.value.sourceTemplate !== null
     case 'source_resource':
       return workflow.value.sourceResource !== null
     case 'source_fields':
@@ -706,6 +796,7 @@ async function createWorkflow() {
   try {
     // Prepare config object for n8n integration
     const config = {
+      template: workflow.value.sourceTemplate,
       sourceResource: workflow.value.sourceResource,
       sourceFields: workflow.value.sourceFields,
       destinationResource: workflow.value.destinationResource,

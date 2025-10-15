@@ -284,6 +284,19 @@ class N8NClient:
 		"""
 		return self._make_request("GET", "/node-types")
 
+	def get_node_type(self, node_name: str) -> Dict:
+		"""
+		Get specific node type definition with all its properties
+
+		Args:
+			node_name: Node type name (e.g., 'n8n-nodes-base.gmail')
+
+		Returns:
+			Node type definition including resources, operations, fields
+		"""
+		response = self._make_request("GET", f"/node-types/{node_name}")
+		return response
+
 	def get_node_parameter_options(self, node_type: str, method_name: str, credential_id: str, current_node_parameters: Optional[Dict] = None) -> List[Dict]:
 		"""
 		Get dynamic parameter options for a node (e.g., Gmail mailboxes, Google Sheets spreadsheets)

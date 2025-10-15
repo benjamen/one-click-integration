@@ -1,6 +1,7 @@
 """
 Resources API for Lodgeick
-Fetches available resources (mailboxes, tables, objects) from connected apps using n8n
+Fetches available resources from n8n node definitions
+Uses n8n's node parameter structure to get resource types
 """
 
 import frappe
@@ -9,15 +10,16 @@ from lodgeick.services.n8n_client import get_n8n_client
 
 
 @frappe.whitelist()
-def get_app_resources(app_id):
+def get_app_templates(app_id):
 	"""
-	Get available resources for a connected app using n8n's resource discovery
+	Get available workflow templates for an app
+	Templates are pre-built n8n workflows like "Email triage agent"
 
 	Args:
 		app_id: The app identifier (e.g., 'gmail', 'google_sheets')
 
 	Returns:
-		dict: List of available resources for the app
+		dict: List of available templates and custom integration option
 	"""
 	user = frappe.session.user
 
@@ -38,16 +40,61 @@ def get_app_resources(app_id):
 			"error": f"App '{app_id}' is not connected. Please connect it from the integrations page."
 		}
 
-	# For now, assume n8n credentials are synced
-	# In production, you'd store n8n_credential_id in Integration Token
-	n8n_credential_id = None  # Will be populated by n8n sync service
+	try:
+		# Get templates from n8n or use fallback
+		templates = get_app_template_list(app_id)
+
+		return {
+			"success": True,
+			"app_id": app_id,
+			"templates": templates
+		}
+
+	except Exception as e:
+		frappe.log_error(f"Error fetching templates for {app_id}: {str(e)[:200]}", "Template Discovery Error")
+		return {
+			"success": True,
+			"app_id": app_id,
+			"templates": get_app_template_list(app_id)
+		}
+
+
+@frappe.whitelist()
+def get_app_resources(app_id):
+	"""
+	Get available resource types for an app from n8n node definition
+
+	Args:
+		app_id: The app identifier (e.g., 'gmail', 'google_sheets')
+
+	Returns:
+		dict: List of available resource types (e.g., 'message', 'draft', 'label')
+	"""
+	user = frappe.session.user
+
+	# Check if user has this app connected (has Integration Token)
+	token = frappe.db.get_value(
+		"Integration Token",
+		{
+			"user": user,
+			"provider": app_id
+		},
+		["name", "provider"],
+		as_dict=True
+	)
+
+	if not token:
+		return {
+			"success": False,
+			"error": f"App '{app_id}' is not connected. Please connect it from the integrations page."
+		}
 
 	try:
-		# Get n8n node configuration for this app
-		node_config = get_app_n8n_config(app_id)
+		# Get n8n node type for this app
+		node_type = get_node_type_for_app(app_id)
 
-		if not node_config:
-			# Fallback to hardcoded resources for apps without n8n discovery
+		if not node_type:
+			# Fallback to static resources
 			resources = get_fallback_resources(app_id)
 			return {
 				"success": True,
@@ -55,12 +102,11 @@ def get_app_resources(app_id):
 				"resources": resources
 			}
 
-		# Use n8n dynamic parameter loading
+		# Query n8n for node definition
 		n8n = get_n8n_client()
 
-		# Note: n8n_credential_id would come from Integration Token in production
-		# For now, fallback to hardcoded resources
-		if not n8n_credential_id:
+		if not n8n.is_enabled():
+			# n8n not available, use fallback
 			resources = get_fallback_resources(app_id)
 			return {
 				"success": True,
@@ -68,14 +114,11 @@ def get_app_resources(app_id):
 				"resources": resources
 			}
 
-		options = n8n.get_node_parameter_options(
-			node_type=node_config["node_type"],
-			method_name=node_config["resource_method"],
-			credential_id=n8n_credential_id
-		)
+		# Get node type definition from n8n
+		node_def = n8n.get_node_type(node_type)
 
-		# Transform n8n options to our format
-		resources = transform_n8n_options(options, app_id)
+		# Extract resource options from node definition
+		resources = extract_resources_from_node(node_def, app_id)
 
 		return {
 			"success": True,
@@ -84,7 +127,7 @@ def get_app_resources(app_id):
 		}
 
 	except Exception as e:
-		frappe.log_error(f"Error fetching resources for {app_id}: {str(e)}", "Resource Discovery Error")
+		frappe.log_error(f"Error fetching resources for {app_id}: {str(e)[:200]}", "Resource Discovery Error")
 		# Return fallback resources on error
 		return {
 			"success": True,
@@ -218,45 +261,114 @@ def get_resource_type(app_id):
 	return types.get(app_id, "resource")
 
 
+def get_node_type_for_app(app_id):
+	"""
+	Map app ID to n8n node type name
+	Uses latest n8n node versions
+	"""
+	node_types = {
+		"gmail": "n8n-nodes-base.gmail",
+		"google_sheets": "n8n-nodes-base.googleSheets",
+		"google_drive": "n8n-nodes-base.googleDrive",
+		"slack": "n8n-nodes-base.slack",
+		"salesforce": "n8n-nodes-base.salesforce",
+		"hubspot": "n8n-nodes-base.hubSpot",
+		"jira": "n8n-nodes-base.jira",
+		"xero": "n8n-nodes-base.xero",
+		"notion": "n8n-nodes-base.notion",
+		"mailchimp": "n8n-nodes-base.mailchimp",
+		"airtable": "n8n-nodes-base.airtable"
+	}
+	return node_types.get(app_id)
+
+
+def extract_resources_from_node(node_def, app_id):
+	"""
+	Extract available resource types from n8n node definition
+
+	Args:
+		node_def: n8n node type definition
+		app_id: App identifier for context
+
+	Returns:
+		list: Resource options with id, name, type
+	"""
+	try:
+		# n8n node definitions have a 'properties' array
+		properties = node_def.get("properties", [])
+
+		# Find the 'resource' parameter
+		resource_param = None
+		for prop in properties:
+			if prop.get("name") == "resource" or prop.get("displayName") == "Resource":
+				resource_param = prop
+				break
+
+		if not resource_param or "options" not in resource_param:
+			# No resource parameter found, use fallback
+			return get_fallback_resources(app_id)
+
+		# Extract resource options
+		resources = []
+		for option in resource_param.get("options", []):
+			resource = {
+				"id": option.get("value", option.get("name", "")),
+				"name": option.get("name", option.get("value", "")),
+				"type": "resource",
+				"description": option.get("description", "")
+			}
+			resources.append(resource)
+
+		return resources if resources else get_fallback_resources(app_id)
+
+	except Exception as e:
+		frappe.logger().error(f"Failed to extract resources from node definition: {str(e)[:200]}")
+		return get_fallback_resources(app_id)
+
+
 def get_fallback_resources(app_id):
 	"""
 	Fallback resources when n8n discovery not available
-	Returns common/default resources for each app
+	These are n8n resource types, not specific instances
 	"""
 	fallbacks = {
 		"gmail": [
-			{"id": "INBOX", "name": "Inbox", "type": "mailbox"},
-			{"id": "SENT", "name": "Sent Mail", "type": "mailbox"},
-			{"id": "DRAFT", "name": "Drafts", "type": "mailbox"},
-			{"id": "STARRED", "name": "Starred", "type": "label"},
-			{"id": "SPAM", "name": "Spam", "type": "mailbox"},
-			{"id": "TRASH", "name": "Trash", "type": "mailbox"}
+			{"id": "message", "name": "Message", "type": "resource", "description": "Get, send, and delete emails"},
+			{"id": "draft", "name": "Draft", "type": "resource", "description": "Manage email drafts"},
+			{"id": "label", "name": "Label", "type": "resource", "description": "Manage labels"},
+			{"id": "thread", "name": "Thread", "type": "resource", "description": "Manage email threads"}
 		],
 		"google_sheets": [
-			{"id": "spreadsheets", "name": "My Spreadsheets", "type": "spreadsheet"}
+			{"id": "sheet", "name": "Sheet", "type": "resource", "description": "Manage spreadsheet rows"},
+			{"id": "spreadsheet", "name": "Spreadsheet", "type": "resource", "description": "Manage spreadsheets"}
 		],
 		"slack": [
-			{"id": "general", "name": "#general", "type": "channel"}
+			{"id": "channel", "name": "Channel", "type": "resource", "description": "Manage channels"},
+			{"id": "message", "name": "Message", "type": "resource", "description": "Send and manage messages"},
+			{"id": "user", "name": "User", "type": "resource", "description": "Manage users"}
 		],
 		"salesforce": [
-			{"id": "Contact", "name": "Contacts", "type": "object"},
-			{"id": "Account", "name": "Accounts", "type": "object"},
-			{"id": "Lead", "name": "Leads", "type": "object"},
-			{"id": "Opportunity", "name": "Opportunities", "type": "object"}
+			{"id": "contact", "name": "Contact", "type": "resource", "description": "Manage contacts"},
+			{"id": "account", "name": "Account", "type": "resource", "description": "Manage accounts"},
+			{"id": "lead", "name": "Lead", "type": "resource", "description": "Manage leads"},
+			{"id": "opportunity", "name": "Opportunity", "type": "resource", "description": "Manage opportunities"}
 		],
 		"hubspot": [
-			{"id": "contacts", "name": "Contacts", "type": "object"},
-			{"id": "companies", "name": "Companies", "type": "object"},
-			{"id": "deals", "name": "Deals", "type": "object"}
+			{"id": "contact", "name": "Contact", "type": "resource", "description": "Manage contacts"},
+			{"id": "company", "name": "Company", "type": "resource", "description": "Manage companies"},
+			{"id": "deal", "name": "Deal", "type": "resource", "description": "Manage deals"}
 		],
 		"jira": [
-			{"id": "default", "name": "My Projects", "type": "project"}
+			{"id": "issue", "name": "Issue", "type": "resource", "description": "Manage issues"},
+			{"id": "project", "name": "Project", "type": "resource", "description": "Manage projects"}
 		],
 		"xero": [
-			{"id": "default", "name": "My Organization", "type": "organization"}
+			{"id": "contact", "name": "Contact", "type": "resource", "description": "Manage contacts"},
+			{"id": "invoice", "name": "Invoice", "type": "resource", "description": "Manage invoices"}
 		],
 		"mailchimp": [
-			{"id": "default", "name": "My Lists", "type": "list"}
+			{"id": "list", "name": "List", "type": "resource", "description": "Manage lists"},
+			{"id": "member", "name": "Member", "type": "resource", "description": "Manage list members"}
 		]
 	}
 	return fallbacks.get(app_id, [])
@@ -316,4 +428,55 @@ def get_app_fields_schema(app_id, resource_id):
 		{"id": "id", "name": "ID", "type": "string"},
 		{"id": "name", "name": "Name", "type": "string"},
 		{"id": "created_at", "name": "Created At", "type": "datetime"}
+	])
+
+
+def get_app_template_list(app_id):
+	"""
+	Get list of available workflow templates for an app
+	Includes pre-built templates and custom integration option
+	"""
+	templates = {
+		"gmail": [
+			{
+				"id": "email_triage_agent",
+				"name": "Email triage agent",
+				"description": "Categorizes new, unread emails by analyzing their content and applying relevant labels.",
+				"type": "template",
+				"triggers": ["New email received"],
+				"actions": ["Analyze content", "Apply labels"]
+			},
+			{
+				"id": "custom",
+				"name": "Custom Integration",
+				"description": "Build your own workflow with Gmail",
+				"type": "custom"
+			}
+		],
+		"google_sheets": [
+			{
+				"id": "custom",
+				"name": "Custom Integration",
+				"description": "Build your own workflow with Google Sheets",
+				"type": "custom"
+			}
+		],
+		"slack": [
+			{
+				"id": "custom",
+				"name": "Custom Integration",
+				"description": "Build your own workflow with Slack",
+				"type": "custom"
+			}
+		]
+	}
+
+	# All apps should have at least a custom option
+	return templates.get(app_id, [
+		{
+			"id": "custom",
+			"name": "Custom Integration",
+			"description": f"Build your own workflow with {app_id}",
+			"type": "custom"
+		}
 	])
