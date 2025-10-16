@@ -609,21 +609,230 @@ print(node_def)
 
 ---
 
+## Dynamic App & Operation Discovery ⭐ NEW
+
+### 24-Hour Cache System
+
+**File**: `lodgeick/services/n8n_cache.py`
+
+Intelligent caching system that stores n8n node data:
+
+```python
+# Cache Management
+get_cached_node_types() → List[Dict]         # Get cached apps
+set_cached_node_types(apps) → None           # Cache apps for 24hrs
+get_cached_node_definition(node) → Dict      # Get cached node def
+set_cached_node_definition(node, def) → None # Cache node def for 24hrs
+clear_cache() → None                         # Clear all cache
+get_cache_stats() → Dict                     # Cache statistics
+```
+
+**DocType**: `n8n Cache`
+- `cache_key` - Unique identifier (e.g., "node_types", "node_def_gmail")
+- `data` - JSON-encoded cached data
+- `expires_at` - Expiration timestamp (24hrs from creation)
+
+### Dynamic App Loading
+
+**API**: `lodgeick.api.resources.get_available_apps()`
+
+Fetches ALL available apps from n8n automatically:
+
+```python
+@frappe.whitelist()
+def get_available_apps():
+    """
+    Loads all apps from n8n node types with 24hr caching
+
+    Returns:
+        {
+            "success": True,
+            "apps": [
+                {
+                    "id": "gmail",
+                    "name": "Gmail",
+                    "description": "Send and receive emails",
+                    "icon": "📧",
+                    "node_type": "n8n-nodes-base.gmail"
+                },
+                ...
+            ],
+            "from_cache": True  # Whether loaded from cache
+        }
+    """
+```
+
+**Process Flow**:
+1. Check cache → If valid (< 24hrs), return cached apps
+2. If expired → Query n8n: `GET /api/v1/node-types`
+3. Filter integration nodes (skip Set, If, Switch, etc.)
+4. Extract app metadata: id, name, description
+5. Add emoji icons (20+ predefined)
+6. Cache results for 24 hours
+7. Return app list
+
+**App Icons** (20+ supported):
+- Gmail 📧, Google Sheets 📊, Google Drive 📁
+- Slack 💬, Salesforce ☁️, HubSpot 🎯
+- Jira 📋, Xero 💰, Notion 📝
+- Mailchimp 📬, Airtable 🗂️, Trello 📌
+- Asana ✅, GitHub 🐙, GitLab 🦊
+- Stripe 💳, Shopify 🛍️, WordPress 📰
+- Zoom 🎥, Calendly 📅, Intercom 💭, Zendesk 🎫
+
+### Operation Extraction
+
+**API**: `lodgeick.api.resources.get_resource_operations(app_id, resource_id)`
+
+Extracts available operations for each resource from n8n node definitions:
+
+```python
+@frappe.whitelist()
+def get_resource_operations(app_id, resource_id):
+    """
+    Get operations for a resource (e.g., 'append row' for Google Sheets)
+
+    Args:
+        app_id: 'googlesheets', 'gmail', 'slack', etc.
+        resource_id: 'sheet', 'message', 'channel', etc.
+
+    Returns:
+        {
+            "success": True,
+            "operations": [
+                {
+                    "id": "append",
+                    "name": "Append Row",
+                    "description": "Add a new row to the spreadsheet",
+                    "action": "append"
+                },
+                {
+                    "id": "update",
+                    "name": "Update Row",
+                    "description": "Update an existing row"
+                }
+            ]
+        }
+    """
+```
+
+**Examples by App**:
+
+**Google Sheets** (`sheet` resource):
+- Append Row - Add a new row
+- Update Row - Update an existing row
+- Read Rows - Read rows from spreadsheet
+- Delete Row - Delete a row
+
+**Gmail** (`message` resource):
+- Send Email - Send a new email
+- Get Email - Get email details
+- Get Many Emails - Get multiple emails
+- Delete Email - Delete an email
+
+**Gmail** (`draft` resource):
+- Create Draft - Create a new draft
+- Get Draft - Get draft details
+- Delete Draft - Delete a draft
+
+**Slack** (`message` resource):
+- Send Message - Send a message to a channel
+- Update Message - Update an existing message
+- Delete Message - Delete a message
+
+**How It Works**:
+```python
+# 1. Get node definition (cached)
+node_def = n8n.get_node_type('n8n-nodes-base.googlesheets')
+
+# 2. Find operation parameter for this resource
+for prop in node_def['properties']:
+    if prop['name'] == 'operation':
+        # Check if this operation is for 'sheet' resource
+        if resource_id in prop['displayOptions']['show']['resource']:
+            operations = prop['options']
+
+# 3. Extract operations
+operations = [
+    {
+        "id": "append",
+        "name": "Append Row",
+        "description": "Add a new row"
+    }
+    for option in operations
+]
+```
+
+**n8n Node Structure**:
+```json
+{
+  "properties": [
+    {
+      "name": "operation",
+      "displayName": "Operation",
+      "displayOptions": {
+        "show": {
+          "resource": ["sheet"]  // Only show for 'sheet' resource
+        }
+      },
+      "options": [
+        {"value": "append", "name": "Append Row", "description": "..."},
+        {"value": "update", "name": "Update Row", "description": "..."}
+      ]
+    }
+  ]
+}
+```
+
+### Fallback System
+
+When n8n is unavailable, the system uses static fallbacks:
+
+**Fallback Apps**:
+- Gmail, Google Sheets, Slack
+- Salesforce, HubSpot, Jira
+
+**Fallback Operations**:
+- Google Sheets → append, update, read, delete
+- Gmail → send, get, getAll, delete
+- Slack → post, update, delete
+- Default → create, update, read, delete
+
+### Cache Stats
+
+```python
+from lodgeick.services.n8n_cache import get_cache_stats
+
+stats = get_cache_stats()
+# Returns: {
+#   "total": 45,      # Total cache entries
+#   "valid": 42,      # Still valid (not expired)
+#   "expired": 3      # Expired entries
+# }
+```
+
+---
+
 ## Next Steps
 
 ### Immediate
 1. ✅ Add template selection step
 2. ✅ Query n8n for resource types
 3. ✅ Update UI terminology (Table → Resource)
-4. ⏳ Test with real n8n connection
+4. ✅ Add 24-hour cache system for n8n data
+5. ✅ Dynamic app loading from n8n
+6. ✅ Operation extraction from node definitions
+7. ⏳ Update frontend to use dynamic apps API
+8. ⏳ Add operation selection step to workflow builder
+9. ⏳ Test with real n8n connection
 
 ### Future Enhancements
 1. **Fetch Templates from n8n**: Query n8n template library
 2. **Dynamic Field Discovery**: Query n8n for actual fields per resource
-3. **Operation Selection**: Let users choose operations (get, send, delete)
-4. **Instance Selection**: Add step to select specific instances (INBOX, specific labels)
-5. **Template Customization**: Allow editing pre-built templates
-6. **Multi-step Workflows**: Support workflows with >2 apps
+3. **Instance Selection**: Add step to select specific instances (INBOX, specific labels)
+4. **Template Customization**: Allow editing pre-built templates
+5. **Multi-step Workflows**: Support workflows with >2 apps
+6. **Cache Management UI**: View and clear cache from admin panel
 
 ---
 
@@ -631,16 +840,21 @@ print(node_def)
 
 ✅ **What's Working**:
 - 8-step workflow builder with template selection
-- n8n node definition querying
+- n8n node definition querying with 24hr cache
 - Resource type extraction from n8n
+- **Dynamic app discovery from n8n (20+ apps)**
+- **Operation extraction from node definitions**
+- **24-hour intelligent caching system**
 - Fallback resources when n8n unavailable
 - Template system with pre-built and custom options
 - Graceful error handling
 
 ⏳ **What's Next**:
+- Update frontend to use `get_available_apps()` API
+- Add operation selection step to workflow builder
 - Test with real n8n connection
 - Fetch templates dynamically from n8n
 - Add more pre-built templates for common use cases
 
 🎯 **User Experience**:
-Users now see accurate n8n resource types and can choose between pre-built templates (like "Email triage agent") or custom workflows, making the system more flexible and aligned with n8n's architecture.
+Users now see accurate n8n resource types and can choose between pre-built templates (like "Email triage agent") or custom workflows. The system automatically discovers new n8n integrations and caches results for fast responses. Operations like "Append Row" or "Send Email" are extracted directly from n8n node definitions, ensuring accuracy and supporting any n8n node updates automatically.
