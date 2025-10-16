@@ -7,6 +7,74 @@ Uses n8n's node parameter structure to get resource types
 import frappe
 from frappe import _
 from lodgeick.services.n8n_client import get_n8n_client
+from lodgeick.services.n8n_cache import (
+	get_cached_node_types,
+	set_cached_node_types,
+	get_cached_node_definition,
+	set_cached_node_definition
+)
+
+
+@frappe.whitelist()
+def get_available_apps():
+	"""
+	Get list of available apps from n8n node types
+	Caches results for 24 hours
+
+	Returns:
+		dict: List of apps with icons, names, descriptions
+	"""
+	try:
+		# Try to get from cache first
+		cached_apps = get_cached_node_types()
+
+		if cached_apps:
+			frappe.logger().info(f"Loaded {len(cached_apps)} apps from cache")
+			return {
+				"success": True,
+				"apps": cached_apps,
+				"from_cache": True
+			}
+
+		# Fetch from n8n
+		n8n = get_n8n_client()
+
+		if not n8n.is_enabled():
+			# n8n not available, use fallback
+			apps = get_fallback_app_list()
+			return {
+				"success": True,
+				"apps": apps,
+				"from_cache": False,
+				"fallback": True
+			}
+
+		# Get all node types from n8n
+		node_types = n8n.get_node_types()
+
+		# Filter and transform to app list
+		apps = extract_apps_from_nodes(node_types)
+
+		# Cache the results
+		set_cached_node_types(apps)
+
+		frappe.logger().info(f"Fetched {len(apps)} apps from n8n")
+
+		return {
+			"success": True,
+			"apps": apps,
+			"from_cache": False
+		}
+
+	except Exception as e:
+		frappe.log_error(f"Error fetching available apps: {str(e)[:200]}", "App Discovery Error")
+		return {
+			"success": True,
+			"apps": get_fallback_app_list(),
+			"from_cache": False,
+			"fallback": True,
+			"error": str(e)[:200]
+		}
 
 
 @frappe.whitelist()
@@ -479,4 +547,255 @@ def get_app_template_list(app_id):
 			"description": f"Build your own workflow with {app_id}",
 			"type": "custom"
 		}
+	])
+
+
+def extract_apps_from_nodes(node_types):
+	"""
+	Extract app list from n8n node types
+	Filters for trigger/regular nodes and formats for Lodgeick UI
+
+	Args:
+		node_types: List of n8n node type objects
+
+	Returns:
+		list: App objects with id, name, icon, description
+	"""
+	apps = []
+	app_icons = get_app_icons()
+
+	# Filter for integration nodes (not core nodes like Set, If, etc.)
+	for node in node_types:
+		node_name = node.get("name", "")
+		display_name = node.get("displayName", "")
+		description = node.get("description", "")
+
+		# Skip core/utility nodes
+		if not node_name.startswith("n8n-nodes-base."):
+			continue
+
+		# Extract app ID from node name (e.g., "n8n-nodes-base.gmail" -> "gmail")
+		app_id = node_name.replace("n8n-nodes-base.", "").lower()
+
+		# Skip utility nodes
+		skip_nodes = ["set", "if", "switch", "merge", "split", "function", "code", "http", "webhook", "wait"]
+		if app_id in skip_nodes:
+			continue
+
+		# Create app object
+		app = {
+			"id": app_id,
+			"name": display_name,
+			"description": description or f"Connect to {display_name}",
+			"icon": app_icons.get(app_id, "🔗"),
+			"node_type": node_name
+		}
+
+		apps.append(app)
+
+	# Sort by name
+	apps.sort(key=lambda x: x["name"])
+
+	return apps
+
+
+def get_app_icons():
+	"""
+	Map app IDs to emoji icons
+	"""
+	return {
+		"gmail": "📧",
+		"googlesheets": "📊",
+		"googledrive": "📁",
+		"slack": "💬",
+		"salesforce": "☁️",
+		"hubspot": "🎯",
+		"jira": "📋",
+		"xero": "💰",
+		"notion": "📝",
+		"mailchimp": "📬",
+		"airtable": "🗂️",
+		"trello": "📌",
+		"asana": "✅",
+		"github": "🐙",
+		"gitlab": "🦊",
+		"stripe": "💳",
+		"shopify": "🛍️",
+		"wordpress": "📰",
+		"zoom": "🎥",
+		"calendly": "📅",
+		"intercom": "💭",
+		"zendesk": "🎫"
+	}
+
+
+def get_fallback_app_list():
+	"""
+	Fallback app list when n8n is unavailable
+	"""
+	icons = get_app_icons()
+
+	return [
+		{"id": "gmail", "name": "Gmail", "description": "Send and receive emails", "icon": icons.get("gmail", "📧")},
+		{"id": "googlesheets", "name": "Google Sheets", "description": "Manage spreadsheets", "icon": icons.get("googlesheets", "📊")},
+		{"id": "slack", "name": "Slack", "description": "Send messages and notifications", "icon": icons.get("slack", "💬")},
+		{"id": "salesforce", "name": "Salesforce", "description": "Manage CRM data", "icon": icons.get("salesforce", "☁️")},
+		{"id": "hubspot", "name": "HubSpot", "description": "Manage contacts and deals", "icon": icons.get("hubspot", "🎯")},
+		{"id": "jira", "name": "Jira", "description": "Manage issues and projects", "icon": icons.get("jira", "📋")}
+	]
+
+
+@frappe.whitelist()
+def get_resource_operations(app_id, resource_id):
+	"""
+	Get available operations for a resource (e.g., 'append row', 'update row' for Google Sheets)
+	Extracts from n8n node definition based on selected resource
+
+	Args:
+		app_id: App identifier
+		resource_id: Resource type (e.g., 'sheet', 'message')
+
+	Returns:
+		dict: List of operations with id, name, description
+	"""
+	try:
+		# Get node type for app
+		node_type = get_node_type_for_app(app_id)
+
+		if not node_type:
+			return {
+				"success": False,
+				"error": "App not supported"
+			}
+
+		# Try cache first
+		cached_def = get_cached_node_definition(node_type)
+		node_def = cached_def
+
+		if not cached_def:
+			# Fetch from n8n
+			n8n = get_n8n_client()
+
+			if not n8n.is_enabled():
+				return {
+					"success": True,
+					"operations": get_fallback_operations(app_id, resource_id)
+				}
+
+			node_def = n8n.get_node_type(node_type)
+
+			# Cache it
+			set_cached_node_definition(node_type, node_def)
+
+		# Extract operations for this resource
+		operations = extract_operations_from_node(node_def, resource_id)
+
+		return {
+			"success": True,
+			"app_id": app_id,
+			"resource_id": resource_id,
+			"operations": operations
+		}
+
+	except Exception as e:
+		frappe.log_error(f"Error fetching operations for {app_id}/{resource_id}: {str(e)[:200]}")
+		return {
+			"success": True,
+			"operations": get_fallback_operations(app_id, resource_id)
+		}
+
+
+def extract_operations_from_node(node_def, resource_id):
+	"""
+	Extract available operations for a resource from n8n node definition
+
+	Args:
+		node_def: n8n node definition
+		resource_id: Resource type (e.g., 'sheet', 'message')
+
+	Returns:
+		list: Operations with id, name, description
+	"""
+	try:
+		properties = node_def.get("properties", [])
+
+		# Find the 'operation' parameter
+		operation_param = None
+		for prop in properties:
+			if prop.get("name") == "operation":
+				# Check if this operation param is for the correct resource
+				display_options = prop.get("displayOptions", {})
+				show = display_options.get("show", {})
+
+				# If it has resource filter, check if it matches
+				if "resource" in show:
+					resource_values = show["resource"]
+					if resource_id not in resource_values:
+						continue
+
+				operation_param = prop
+				break
+
+		if not operation_param or "options" not in operation_param:
+			return get_fallback_operations("unknown", resource_id)
+
+		# Extract operations
+		operations = []
+		for option in operation_param.get("options", []):
+			operation = {
+				"id": option.get("value", option.get("name", "")),
+				"name": option.get("name", option.get("value", "")),
+				"description": option.get("description", ""),
+				"action": option.get("action", "")
+			}
+			operations.append(operation)
+
+		return operations
+
+	except Exception as e:
+		frappe.logger().error(f"Failed to extract operations: {str(e)[:200]}")
+		return get_fallback_operations("unknown", resource_id)
+
+
+def get_fallback_operations(app_id, resource_id):
+	"""
+	Fallback operations for common app/resource combinations
+	"""
+	operations = {
+		"googlesheets": {
+			"sheet": [
+				{"id": "append", "name": "Append Row", "description": "Add a new row to the spreadsheet"},
+				{"id": "update", "name": "Update Row", "description": "Update an existing row"},
+				{"id": "read", "name": "Read Rows", "description": "Read rows from spreadsheet"},
+				{"id": "delete", "name": "Delete Row", "description": "Delete a row from spreadsheet"}
+			]
+		},
+		"gmail": {
+			"message": [
+				{"id": "send", "name": "Send Email", "description": "Send a new email"},
+				{"id": "get", "name": "Get Email", "description": "Get email details"},
+				{"id": "getAll", "name": "Get Many Emails", "description": "Get multiple emails"},
+				{"id": "delete", "name": "Delete Email", "description": "Delete an email"}
+			],
+			"draft": [
+				{"id": "create", "name": "Create Draft", "description": "Create a new draft"},
+				{"id": "get", "name": "Get Draft", "description": "Get draft details"},
+				{"id": "delete", "name": "Delete Draft", "description": "Delete a draft"}
+			]
+		},
+		"slack": {
+			"message": [
+				{"id": "post", "name": "Send Message", "description": "Send a message to a channel"},
+				{"id": "update", "name": "Update Message", "description": "Update an existing message"},
+				{"id": "delete", "name": "Delete Message", "description": "Delete a message"}
+			]
+		}
+	}
+
+	app_ops = operations.get(app_id, {})
+	return app_ops.get(resource_id, [
+		{"id": "create", "name": "Create", "description": "Create a new item"},
+		{"id": "update", "name": "Update", "description": "Update an existing item"},
+		{"id": "read", "name": "Read", "description": "Read items"},
+		{"id": "delete", "name": "Delete", "description": "Delete an item"}
 	])

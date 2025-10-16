@@ -28,7 +28,6 @@ declare module 'vue' {
     IntegrationItem: typeof import('./src/components/IntegrationItem.vue')['default']
     IntegrationsGrid: typeof import('./src/components/IntegrationsGrid.vue')['default']
     OAuthSetupWizard: typeof import('./src/components/OAuthSetupWizard.vue')['default']
-    OAuthSetupWizardEnhanced: typeof import('./src/components/OAuthSetupWizardEnhanced.vue')['default']
     OnboardingChecklist: typeof import('./src/components/OnboardingChecklist.vue')['default']
     PrimaryButton: typeof import('./src/components/onboarding/PrimaryButton.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
